@@ -11,16 +11,19 @@ from open_spiel.python.environments import cliff_walking
 
 
 def main():
-  env = cliff_walking.Environment(width=5, height=3)
+  env = cliff_walking.Environment(width=12, height=4)
   num_actions = env.action_spec()["num_actions"]
 
-  agent = tabular_qlearner.QLearner(
-      player_id=0, step_size=0.05, num_actions=num_actions)
+  learning_rates = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-  train(env, agent, 100)
-  avg_reward = eval_agent(env, agent, 50)
+  for learning_rate in learning_rates:
+    agent = tabular_qlearner.QLearner(
+        player_id=0, step_size=learning_rate, num_actions=num_actions)
 
-  print(avg_reward)
+    train(env, agent, 100)
+    avg_reward = evaluate(env, agent, 50)
+
+    print(avg_reward)
 
 
 def train(env, agent, num_episodes):
@@ -34,7 +37,7 @@ def train(env, agent, num_episodes):
     agent.step(time_step)
 
 
-def eval_agent(env, agent, num_episodes):
+def evaluate(env, agent, num_episodes):
   """ Returns the average rewards received by the agent over the given episodes """
   rewards = 0.0
   for _ in range(num_episodes):

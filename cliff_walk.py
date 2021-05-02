@@ -7,23 +7,30 @@ from __future__ import print_function
 import logging
 
 from open_spiel.python.algorithms import tabular_qlearner
+from open_spiel.python.algorithms import value_iteration
 from open_spiel.python.environments import cliff_walking
 
+WORLD_WIDTH = 12
+WORLD_HEIGHT = 4
+TRAINING_EPISODES = 100
+EVAL_EPISODES = 20
 
 def main():
-  env = cliff_walking.Environment(width=12, height=4)
-  num_actions = env.action_spec()["num_actions"]
+  env = cliff_walking.Environment(width=WORLD_WIDTH, height=WORLD_HEIGHT)
+  # num_actions = env.action_spec()["num_actions"]
 
   learning_rates = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-  for learning_rate in learning_rates:
-    agent = tabular_qlearner.QLearner(
-        player_id=0, step_size=learning_rate, num_actions=num_actions)
+  value_iteration.value_iteration(env, -1, 0.01, True)
 
-    train(env, agent, 100)
-    avg_reward = evaluate(env, agent, 50)
+  # for learning_rate in learning_rates:
+    # agent = tabular_qlearner.QLearner(
+    #     player_id=0, step_size=learning_rate, num_actions=num_actions)
 
-    print(avg_reward)
+    # train(env, agent, TRAINING_EPISODES)
+    # avg_reward = evaluate(env, agent, EVAL_EPISODES)
+
+    # print(avg_reward)
 
 
 def train(env, agent, num_episodes):

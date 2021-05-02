@@ -4,6 +4,7 @@
 framework that comes with a bunch of games and algorithms. This repo documents
 how to get it installed and run some examples.
 
+
 # Getting started
 - use linux
     - mingw: just a pain, everything breaks
@@ -34,3 +35,17 @@ python3 venv/lib/python3.8/site-packages/open_spiel/python/examples/single_agent
 # test GUI works
 python3 venv/share/doc/networkx-2.4/examples/algorithms/plot_davis_club.py
 ```
+
+
+# notes
+- what's the difference between an env and a game. Why can't I use
+  value_iteration on an env?
+    - open_spiel.python.rl_environment wraps pyspiel.game
+- why can't I find the definition of pyspiel.load_game?
+    - it's bound to the C++ LoadGame implementation
+
+
+# todo
+- try value iteration with cliff walking. need to use game instead of env
+- can I use sarsa from python?
+  - there's only 2 bots in pyspiel.registered_bots(). How to use c algorithms?

@@ -10,6 +10,7 @@ how to get it installed and run some examples.
     - docker: didn't work immediately, gave up :)
     - WSL: hard to get GUI working
 - follow [install docs](https://github.com/deepmind/open_spiel/blob/master/docs/install.md)
+- remember to `source venv/bin/activate`
 - run `sudo apt-get install python3-tk` (otherwise Matplotlib complains)
 - test it worked:
 
@@ -23,7 +24,7 @@ python3 venv/lib/python3.8/site-packages/open_spiel/python/examples/example.py -
 python3 venv/lib/python3.8/site-packages/open_spiel/python/examples/mcts.py --game=tic_tac_toe
 
 # browse open speil stuff
-code venv/lib/python3.8/site-packages/open_spiel
+code ./venv/lib/python3.8/site-packages/open_spiel
 
 # print games
 python3 print_games.py

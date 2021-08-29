@@ -13,7 +13,7 @@ UCT_C = math.sqrt(2)
 
 game = pyspiel.load_game("tic_tac_toe")
 state = game.new_initial_state()
-rng = np.random.RandomState(42)
+rng = np.random.RandomState()  # init with value for a repeatable game
 mcts_bot = mcts.MCTSBot(
     game,
     UCT_C,
@@ -27,8 +27,6 @@ random_bot = uniform_random.UniformRandomBot(1, rng)
 players = [mcts_bot, random_bot]
 
 while not state.is_terminal():
-  # print(state.current_player())
-  # print(state.is_chance_node())
   print('current state:')
   print(state)
   if state.is_chance_node():

@@ -61,7 +61,7 @@ def mcts_step_verbose(bot, state):
   # additional verbosity of what's going on within the MCTS algorithm
   # note: set Verbose=False when instantiating the mcts bot
   t1 = time.time()
-  root = bot.mcts_search(state)
+  root = mcts_search(bot, state)
 
   best = root.best_child()
 
@@ -80,6 +80,46 @@ def mcts_step_verbose(bot, state):
 
   return best.action
 
+def mcts_search(bot, state):
+  # a copy of open_spiel/python/algorithms/mcts.py.mcts_search,
+  # with irrelevant parts (eg. dirichlet noise, chance nodes),
+  # and extra printouts
+  root_player = state.current_player()
+  root = mcts.SearchNode(None, state.current_player(), 1)
+  for _ in range(bot.max_simulations):
+    print(f"simulating from state {root}")
+    visit_path, working_state = bot._apply_tree_policy(root, state)
+    if working_state.is_terminal():
+      returns = working_state.returns()
+      visit_path[-1].outcome = returns
+      solved = bot.solve
+    else:
+      returns = bot.evaluator.evaluate(working_state)
+      solved = False
+
+    for node in reversed(visit_path):
+      node.total_reward += returns[root_player if node.player ==
+                                    pyspiel.PlayerId.CHANCE else node.player]
+      node.explore_count += 1
+
+      if solved and node.children:
+        player = node.children[0].player
+        best = None
+        all_solved = True
+        for child in node.children:
+          if child.outcome is None:
+            all_solved = False
+          elif best is None or child.outcome[player] > best.outcome[player]:
+            best = child
+        if (best is not None and
+            (all_solved or best.outcome[player] == bot.max_utility)):
+          node.outcome = best.outcome
+        else:
+          solved = False
+    if root.outcome is not None:
+      break
+
+  return root
 
 if __name__ == '__main__':
   main()

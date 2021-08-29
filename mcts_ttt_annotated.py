@@ -27,7 +27,10 @@ def main():
       raise RuntimeError("didn't expect a chance node!")
     current_player_idx = state.current_player()
     current_player = players[current_player_idx]
-    action = current_player.step(state)
+    if current_player_idx == 0:
+      action = mcts_step_standard(current_player, state)
+    else:
+      action = current_player.step(state)
     action_str = state.action_to_string(current_player_idx, action)
     print(f"Player {player_labels[current_player_idx]} action: {action_str}")
     state.apply_action(action)
@@ -47,6 +50,9 @@ def new_mcts_bot(game, rng=np.random.RandomState()):
       random_state=rng,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=20, random_state=rng),
       verbose=True)
+
+def mcts_step_standard(bot, state):
+  return bot.step(state)
 
 if __name__ == '__main__':
   main()

@@ -1,18 +1,6 @@
-# Copyright 2019 DeepMind Technologies Ltd. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-"""Monte-Carlo Tree Search algorithm for game play."""
+# A duplicate of https://github.com/deepmind/open_spiel/blob/master/open_spiel/python/algorithms/mcts.py,
+# annotated for a better understanding of the inner workings. I've removed some
+# of the doc comments, see the original for those.
 
 from __future__ import absolute_import
 from __future__ import division
@@ -307,10 +295,12 @@ class MCTSBot(pyspiel.Bot):
     visit_path = [root]
     working_state = state.clone()
     current_node = root
+    print(f"applying tree policy from state\n{state}")
     while not working_state.is_terminal() and current_node.explore_count > 0:
       if not current_node.children:
-        # For a new node, initialize its state, then choose a child as normal.
+        print('path from current state is unexplored. Legal actions:')
         legal_actions = self.evaluator.prior(working_state)
+        print(legal_actions)
         if current_node is root and self._dirichlet_noise:
           epsilon, alpha = self._dirichlet_noise
           noise = self._random_state.dirichlet([alpha] * len(legal_actions))
@@ -345,54 +335,6 @@ class MCTSBot(pyspiel.Bot):
     return visit_path, working_state
 
   def mcts_search(self, state):
-    """A vanilla Monte-Carlo Tree Search algorithm.
-
-    This algorithm searches the game tree from the given state.
-    At the leaf, the evaluator is called if the game state is not terminal.
-    A total of max_simulations states are explored.
-
-    At every node, the algorithm chooses the action with the highest PUCT value,
-    defined as: `Q/N + c * prior * sqrt(parent_N) / N`, where Q is the total
-    reward after the action, and N is the number of times the action was
-    explored in this position. The input parameter c controls the balance
-    between exploration and exploitation; higher values of c encourage
-    exploration of under-explored nodes. Unseen actions are always explored
-    first.
-
-    At the end of the search, the chosen action is the action that has been
-    explored most often. This is the action that is returned.
-
-    This implementation supports sequential n-player games, with or without
-    chance nodes. All players maximize their own reward and ignore the other
-    players' rewards. This corresponds to max^n for n-player games. It is the
-    norm for zero-sum games, but doesn't have any special handling for
-    non-zero-sum games. It doesn't have any special handling for imperfect
-    information games.
-
-    The implementation also supports backing up solved states, i.e. MCTS-Solver.
-    The implementation is general in that it is based on a max^n backup (each
-    player greedily chooses their maximum among proven children values, or there
-    exists one child whose proven value is game.max_utility()), so it will work
-    for multiplayer, general-sum, and arbitrary payoff games (not just win/loss/
-    draw games). Also chance nodes are considered proven only if all children
-    have the same value.
-
-    Some references:
-    - Sturtevant, An Analysis of UCT in Multi-Player Games,  2008,
-      https://web.cs.du.edu/~sturtevant/papers/multi-player_UCT.pdf
-    - Nijssen, Monte-Carlo Tree Search for Multi-Player Games, 2013,
-      https://project.dke.maastrichtuniversity.nl/games/files/phd/Nijssen_thesis.pdf
-    - Silver, AlphaGo Zero: Starting from scratch, 2017
-      https://deepmind.com/blog/article/alphago-zero-starting-scratch
-    - Winands, Bjornsson, and Saito, "Monte-Carlo Tree Search Solver", 2008.
-      https://dke.maastrichtuniversity.nl/m.winands/documents/uctloa.pdf
-
-    Arguments:
-      state: pyspiel.State object, state to search from
-
-    Returns:
-      The most visited move from the root node.
-    """
     root_player = state.current_player()
     root = SearchNode(None, state.current_player(), 1)
     for _ in range(self.max_simulations):

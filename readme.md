@@ -19,6 +19,9 @@ how to get it installed and run some examples.
 Now some more:
 
 ```sh
+# test GUI works
+python3 venv/share/doc/networkx-2.4/examples/algorithms/plot_davis_club.py
+
 # run some games
 python3 venv/lib/python3.8/site-packages/open_spiel/python/examples/example.py --game=breakthrough
 python3 venv/lib/python3.8/site-packages/open_spiel/python/examples/mcts.py --game=tic_tac_toe
@@ -32,6 +35,6 @@ python3 print_games.py
 # single agent cliff walking demo
 python3 venv/lib/python3.8/site-packages/open_spiel/python/examples/single_agent_cliff_walking.py
 
-# test GUI works
-python3 venv/share/doc/networkx-2.4/examples/algorithms/plot_davis_club.py
+# annotated MCTS bot playing tic-tac-toe against a random bot
+python3 mcts_ttt_annotated.py
 ```

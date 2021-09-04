@@ -46,18 +46,30 @@ class RandomRolloutEvaluator(Evaluator):
   def evaluate(self, state):
     """Returns evaluation on given state."""
     result = None
-    for _ in range(self.n_rollouts):
+    for i in range(self.n_rollouts):
+      print(f'rollout {i}')
       working_state = state.clone()
       while not working_state.is_terminal():
         if working_state.is_chance_node():
+          print('chance')
           outcomes = working_state.chance_outcomes()
           action_list, prob_list = zip(*outcomes)
           action = self._random_state.choice(action_list, p=prob_list)
         else:
           action = self._random_state.choice(working_state.legal_actions())
+        act_string = working_state.action_to_string(working_state.current_player(), action)
+        print(f'action: {act_string}')
         working_state.apply_action(action)
+        print(working_state)
       returns = np.array(working_state.returns())
+      print('rollout finished. returns:')
+      print(returns)
       result = returns if result is None else result + returns
+
+    print(f'ran {self.n_rollouts} rollouts from state')
+    print(state)
+    print('result')
+    print(result / self.n_rollouts)
 
     return result / self.n_rollouts
 
@@ -184,6 +196,10 @@ class SearchNode(object):
     return self.to_str(None)
 
 
+def action_to_string(state, action):
+  return state.action_to_string(state.current_player(), action)
+
+
 class MCTSBot(pyspiel.Bot):
   """Bot that uses Monte-Carlo Tree Search algorithm."""
 
@@ -295,12 +311,14 @@ class MCTSBot(pyspiel.Bot):
     visit_path = [root]
     working_state = state.clone()
     current_node = root
-    print(f"applying tree policy from state\n{state}")
     while not working_state.is_terminal() and current_node.explore_count > 0:
       if not current_node.children:
-        print('path from current state is unexplored. Legal actions:')
+        print('path from current state is unexplored. Current state:')
+        print(working_state)
         legal_actions = self.evaluator.prior(working_state)
-        print(legal_actions)
+        print('legal actions')
+        for a in legal_actions:
+          print(' ', action_to_string(working_state, a[0]), a[1])
         if current_node is root and self._dirichlet_noise:
           epsilon, alpha = self._dirichlet_noise
           noise = self._random_state.dirichlet([alpha] * len(legal_actions))
@@ -314,6 +332,7 @@ class MCTSBot(pyspiel.Bot):
         ]
 
       if working_state.is_chance_node():
+        print('chance')
         # For chance nodes, rollout according to chance node's probability
         # distribution
         outcomes = working_state.chance_outcomes()
@@ -322,28 +341,38 @@ class MCTSBot(pyspiel.Bot):
         chosen_child = next(
             c for c in current_node.children if c.action == action)
       else:
+        print('using uct to choose action')
         # Otherwise choose node with largest UCT value
         chosen_child = max(
             current_node.children,
             key=lambda c: self._child_selection_fn(  # pylint: disable=g-long-lambda
                 c, current_node.explore_count, self.uct_c))
+        print(action_to_string(working_state, chosen_child.action))
 
       working_state.apply_action(chosen_child.action)
       current_node = chosen_child
       visit_path.append(current_node)
+      print('working state is now')
+      print(working_state)
 
     return visit_path, working_state
 
   def mcts_search(self, state):
     root_player = state.current_player()
     root = SearchNode(None, state.current_player(), 1)
-    for _ in range(self.max_simulations):
+    print("searching from root:")
+    print(state)
+    for i in range(self.max_simulations):
+      print('simulation', i)
       visit_path, working_state = self._apply_tree_policy(root, state)
       if working_state.is_terminal():
+        print('reached terminal state. solved?')
+        print(working_state)
         returns = working_state.returns()
         visit_path[-1].outcome = returns
         solved = self.solve
       else:
+        print('reached leaf, using random rollout')
         returns = self.evaluator.evaluate(working_state)
         solved = False
 

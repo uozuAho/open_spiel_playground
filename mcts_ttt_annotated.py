@@ -44,10 +44,10 @@ def new_mcts_bot(game, rng=np.random.RandomState()):
   return mcts.MCTSBot(
       game,
       UCT_C,
-      max_simulations=10,
+      max_simulations=3,
       solve=True,
       random_state=rng,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=20, random_state=rng),
+      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=3, random_state=rng),
       verbose=True)
 
 

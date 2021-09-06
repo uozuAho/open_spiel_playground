@@ -1,0 +1,5 @@
+absl-py==0.13.0
+attrs==21.2.0
+numpy==1.21.2
+open-spiel==1.0.0
+six==1.16.0

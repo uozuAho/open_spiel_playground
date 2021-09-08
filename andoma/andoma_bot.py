@@ -8,29 +8,23 @@ class AndomaBot(pyspiel.Bot):
     self.search_depth = 1
 
   def step(self, state: pyspiel.State) -> int:
-    print('andoma is thinking...')
     board = chess.Board(str(state))
-    print('current state:')
-    print(board)
+    move = movegeneration.next_move(self.search_depth, board, debug=False)
+    return self._pychess_to_spiel_move(move, state)
+
+  def _pychess_to_spiel_move(self, move: chess.Move, state: pyspiel.State):
+    # this is necessary, as openspiel's chess SANs differ from pychess's
+    # for example, in a new game, openspiel lists 'aa3' as a valid action. The
+    # file disambiguation is unnecessary here - pychess lists this valid action
+    # as 'a3'
+    board = chess.Board(str(state))
 
     def action_str(action):
       return state.action_to_string(state.current_player(), action)
 
-    print('legal moves according to openspiel:')
-    print([action_str(action) for action in state.legal_actions()])
-
-    print('legal moves according to pychess:')
-    print([board.san(move) for move in board.legal_moves])
-
-    print('mapped moves:')
     move_map = {board.parse_san(action_str(action)): action for action in state.legal_actions()}
-    print(move_map)
-
-    move = movegeneration.next_move(self.search_depth, board, debug=False)
-    print('andoma chooses move:')
-    print(move)
 
     if move not in move_map:
-      raise RuntimeError(f"chosen move {move} is not a legal move!")
+      raise RuntimeError(f"{move} is not a legal move!")
 
     return move_map[move]

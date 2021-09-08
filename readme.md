@@ -9,32 +9,25 @@ how to get it installed and run some examples.
     - mingw: just a pain, everything breaks
     - docker: didn't work immediately, gave up :)
     - WSL: hard to get GUI working
-- follow [install docs](https://github.com/deepmind/open_spiel/blob/master/docs/install.md)
-- remember to `source venv/bin/activate`
-- run `sudo apt-get install python3-tk` (otherwise Matplotlib complains)
-- test it worked:
-
-> python3 venv/lib/python3.8/site-packages/open_spiel/python/examples/example.py --game=tic_tac_toe
-
-Now some more:
 
 ```sh
-# test GUI works
-python3 venv/share/doc/networkx-2.4/examples/algorithms/plot_davis_club.py
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-# run some games
-python3 venv/lib/python3.8/site-packages/open_spiel/python/examples/example.py --game=breakthrough
-python3 venv/lib/python3.8/site-packages/open_spiel/python/examples/mcts.py --game=tic_tac_toe
+# test it worked:
+python print_games.py
+python mcts_ttt_annotated.py
+python .venv/lib/python3.8/site-packages/open_spiel/python/examples/example.py --game=tic_tac_toe
 
 # browse open speil stuff
 code ./venv/lib/python3.8/site-packages/open_spiel
+```
 
-# print games
-python3 print_games.py
+# Getting GUI bits to run
+Not sure if this works/is necessary.
 
-# single agent cliff walking demo
-python3 venv/lib/python3.8/site-packages/open_spiel/python/examples/single_agent_cliff_walking.py
-
-# annotated MCTS bot playing tic-tac-toe against a random bot
-python3 mcts_ttt_annotated.py
+```sh
+sudo apt-get install python3-tk  # otherwise Matplotlib complains
+python .venv/share/doc/networkx-2.4/examples/algorithms/plot_davis_club.py
 ```

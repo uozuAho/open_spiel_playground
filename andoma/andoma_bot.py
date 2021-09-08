@@ -13,10 +13,10 @@ class AndomaBot(pyspiel.Bot):
     return self._pychess_to_spiel_move(move, state)
 
   def _pychess_to_spiel_move(self, move: chess.Move, state: pyspiel.State):
-    # this is necessary, as openspiel's chess SANs differ from pychess's
-    # for example, in a new game, openspiel lists 'aa3' as a valid action. The
+    # This is necessary, as openspiel's chess SANs differ from pychess's.
+    # For example, in a new game, openspiel lists 'aa3' as a valid action. The
     # file disambiguation is unnecessary here - pychess lists this valid action
-    # as 'a3'
+    # as 'a3'.
     board = chess.Board(str(state))
 
     def action_str(action):

@@ -3,9 +3,9 @@ import pyspiel
 from . import movegeneration
 
 class AndomaBot(pyspiel.Bot):
-  def __init__(self):
+  def __init__(self, search_depth=1):
     pyspiel.Bot.__init__(self)
-    self.search_depth = 1
+    self.search_depth = search_depth
 
   def step(self, state: pyspiel.State) -> int:
     board = chess.Board(str(state))

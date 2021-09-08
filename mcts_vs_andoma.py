@@ -5,7 +5,6 @@ import numpy as np
 
 import pyspiel
 from open_spiel.python.algorithms import mcts
-from open_spiel.python.bots import uniform_random
 
 from andoma import andoma_bot as andoma
 
@@ -13,7 +12,7 @@ def main():
   game = pyspiel.load_game("chess")
   state = game.new_initial_state()
   mcts_bot = new_mcts_bot(game)
-  andoma_bot = andoma.AndomaBot()
+  andoma_bot = andoma.AndomaBot(search_depth=3)
 
   players = [mcts_bot, andoma_bot]
   player_labels = ['mcts', 'andoma']

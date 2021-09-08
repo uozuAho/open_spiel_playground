@@ -4,9 +4,6 @@
 framework that comes with a bunch of games and algorithms. This repo documents
 how to get it installed and run some examples.
 
-# todo for mcts vs andoma
-- play more games!
-
 # Getting started
 - use linux
     - mingw: just a pain, everything breaks

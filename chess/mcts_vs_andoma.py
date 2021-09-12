@@ -1,6 +1,6 @@
 # Plays a game of chess between an MCTS bot and [Andoma](https://github.com/healeycodes/andoma)
 
-DEBUG=True
+DEBUG=False
 
 import math
 import numpy as np
@@ -11,10 +11,11 @@ from open_spiel.python.algorithms import mcts
 import chess
 from andoma import andoma_bot as andoma
 
+
 def main():
   game = pyspiel.load_game("chess")
   state = game.new_initial_state()
-  mcts_bot = new_mcts_bot(game)
+  mcts_bot = new_mcts_bot(game, 10, 10)
   andoma_bot = andoma.AndomaBot(search_depth=1)
 
   players = [mcts_bot, andoma_bot]
@@ -36,13 +37,15 @@ def main():
   print_outcome(state, player_labels)
 
 
-def new_mcts_bot(game, rng=np.random.RandomState()):
+def new_mcts_bot(game, max_sims, num_rollouts, rng=np.random.RandomState()):
+  if max_sims < 2:
+    raise RuntimeError('max_sims must be > 1 ... I think the implementation is broken')
   return mcts.MCTSBot(
       game,
       uct_c=math.sqrt(2),
-      max_simulations=2,
+      max_simulations=max_sims,
       random_state=rng,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1, random_state=rng))
+      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=num_rollouts, random_state=rng))
 
 
 def print_dbg_state(state: pyspiel.State, player_labels):

@@ -1,6 +1,6 @@
 # Plays a game of chess between an MCTS bot and [Andoma](https://github.com/healeycodes/andoma)
 
-DEBUG=True
+DEBUG=False
 
 import math
 import numpy as np
@@ -31,13 +31,10 @@ def main():
     action_str = state.action_to_string(state.current_player(), action)
     dbg(f'chosen action: {action_str}')
     state.apply_action(action)
-  print(state)
 
-  if all((x == 0 for x in state.returns())):
-    print('Draw!')
-  else:
-    winner = player_labels[0] if state.returns()[0] > 0 else player_labels[1]
-    print(f'winner: {winner}')
+  print(state)
+  print(chess.Board(fen=str(state)))
+  print_outcome(state, player_labels)
 
 def new_mcts_bot(game, rng=np.random.RandomState()):
   return mcts.MCTSBot(
@@ -46,6 +43,13 @@ def new_mcts_bot(game, rng=np.random.RandomState()):
       max_simulations=2,
       random_state=rng,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1, random_state=rng))
+
+def print_outcome(state: pyspiel.State, player_labels):
+  if all((x == 0 for x in state.returns())):
+    print('Draw!')
+  else:
+    winner = player_labels[0] if state.returns()[0] > 0 else player_labels[1]
+    print(f'winner: {winner}')
 
 def dbg(msg):
   if DEBUG: print(msg)

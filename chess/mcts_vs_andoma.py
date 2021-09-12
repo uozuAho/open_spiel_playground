@@ -1,6 +1,6 @@
 # Plays a game of chess between an MCTS bot and [Andoma](https://github.com/healeycodes/andoma)
 
-DEBUG=False
+DEBUG=True
 
 import math
 import numpy as np
@@ -23,18 +23,18 @@ def main():
   while not state.is_terminal():
     current_player_idx = state.current_player()
     current_player = players[current_player_idx]
-    print(state)
-    dbg(chess.Board(fen=str(state)))
-    dbg(f'current player ({"W" if current_player_idx == 1 else "b"}): {player_labels[current_player_idx]}')
-    if DEBUG: input("press a key...")
+    if DEBUG:
+      print_dbg_state(state, player_labels)
+      input("press a key...")
     action = current_player.step(state)
-    action_str = state.action_to_string(state.current_player(), action)
-    dbg(f'chosen action: {action_str}')
+    if DEBUG:
+      print_action(state, action)
     state.apply_action(action)
 
   print(state)
   print(chess.Board(fen=str(state)))
   print_outcome(state, player_labels)
+
 
 def new_mcts_bot(game, rng=np.random.RandomState()):
   return mcts.MCTSBot(
@@ -44,15 +44,25 @@ def new_mcts_bot(game, rng=np.random.RandomState()):
       random_state=rng,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1, random_state=rng))
 
+
+def print_dbg_state(state: pyspiel.State, player_labels):
+  current_player_idx = state.current_player()
+  print(state)
+  print(chess.Board(fen=str(state)))
+  print(f'current player ({"W" if current_player_idx == 1 else "b"}): {player_labels[current_player_idx]}')
+
+
+def print_action(state, action):
+  action_str = state.action_to_string(state.current_player(), action)
+  print(f'action: {action_str}')
+
+
 def print_outcome(state: pyspiel.State, player_labels):
   if all((x == 0 for x in state.returns())):
     print('Draw!')
   else:
     winner = player_labels[0] if state.returns()[0] > 0 else player_labels[1]
     print(f'winner: {winner}')
-
-def dbg(msg):
-  if DEBUG: print(msg)
 
 
 if __name__ == '__main__':

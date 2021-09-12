@@ -1,4 +1,4 @@
-# Plays a game of chess between an MCTS bot and [Andoma](https://github.com/healeycodes/andoma)
+# Plays a game of chess between two bots
 
 DEBUG=False
 
@@ -7,6 +7,7 @@ import numpy as np
 
 import pyspiel
 from open_spiel.python.algorithms import mcts
+from open_spiel.python.bots import uniform_random
 
 import chess
 from andoma import andoma_bot as andoma
@@ -15,11 +16,14 @@ from andoma import andoma_bot as andoma
 def main():
   game = pyspiel.load_game("chess")
   state = game.new_initial_state()
-  mcts_bot = new_mcts_bot(game, 10, 10)
-  andoma_bot = andoma.AndomaBot(search_depth=1)
 
-  players = [mcts_bot, andoma_bot]
-  player_labels = ['mcts', 'andoma']
+  bots = {
+    'mcts': new_mcts_bot(game, 2, 1),
+    # 'andoma': andoma.AndomaBot(search_depth=1),
+    'random': uniform_random.UniformRandomBot(1, np.random.RandomState())
+  }
+  players = [v for v in bots.values()]
+  player_labels = [k for k in bots.keys()]
 
   while not state.is_terminal():
     current_player_idx = state.current_player()

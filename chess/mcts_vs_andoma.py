@@ -36,8 +36,7 @@ def main():
     state.apply_action(action)
   print(state)
 
-  # todo: fix output here!
-  winner = player_labels[0] if state.returns()[0] > 0 else player_labels[0]
+  winner = player_labels[0] if state.returns()[0] > 0 else player_labels[1]
   print(f'winner: {winner}')
 
 def new_mcts_bot(game, rng=np.random.RandomState()):

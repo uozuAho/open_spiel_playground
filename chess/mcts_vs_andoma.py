@@ -1,15 +1,12 @@
 # Plays a game of chess between an MCTS bot and [Andoma](https://github.com/healeycodes/andoma)
 
-DEBUG=False
+DEBUG=True
 
 import math
 import numpy as np
 
 import pyspiel
-if DEBUG:
-  import mcts_annotated as mcts
-else:
-  from open_spiel.python.algorithms import mcts
+from open_spiel.python.algorithms import mcts
 
 import chess
 from andoma import andoma_bot as andoma
@@ -36,8 +33,11 @@ def main():
     state.apply_action(action)
   print(state)
 
-  winner = player_labels[0] if state.returns()[0] > 0 else player_labels[1]
-  print(f'winner: {winner}')
+  if all((x == 0 for x in state.returns())):
+    print('Draw!')
+  else:
+    winner = player_labels[0] if state.returns()[0] > 0 else player_labels[1]
+    print(f'winner: {winner}')
 
 def new_mcts_bot(game, rng=np.random.RandomState()):
   return mcts.MCTSBot(

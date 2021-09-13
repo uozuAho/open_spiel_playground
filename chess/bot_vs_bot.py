@@ -14,6 +14,10 @@ from andoma import andoma_bot as andoma
 
 
 def main():
+  play_one_game()
+
+
+def play_one_game():
   game = pyspiel.load_game("chess")
   state = game.new_initial_state()
 
@@ -22,6 +26,17 @@ def main():
     # 'andoma': andoma.AndomaBot(search_depth=1),
     'random': uniform_random.UniformRandomBot(1, np.random.RandomState())
   }
+
+  state = play_one_game2(game, bots)
+
+  print(state)
+  print(chess.Board(fen=str(state)))
+  print_outcome(state, [type(x).__name__ for x in bots.values()])
+
+
+def play_one_game2(game, bots):
+  # plays one game, returns the final state
+  state = game.new_initial_state()
   players = [v for v in bots.values()]
   player_labels = [k for k in bots.keys()]
 
@@ -36,9 +51,7 @@ def main():
       print_action(state, action)
     state.apply_action(action)
 
-  print(state)
-  print(chess.Board(fen=str(state)))
-  print_outcome(state, player_labels)
+  return state
 
 
 def new_mcts_bot(game, max_sims, num_rollouts, rng=np.random.RandomState()):

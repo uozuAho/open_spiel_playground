@@ -2,7 +2,9 @@
 
 DEBUG=False
 
+from datetime import datetime
 import math
+from re import S
 import numpy as np
 
 import pyspiel
@@ -17,7 +19,9 @@ game = pyspiel.load_game("chess")
 
 
 def main():
-  mcts_vs_random()
+  # mcts_vs_random()
+  # mcts_incremental_vs_rando()
+  andoma_vs_random()
 
 
 def mcts_vs_random():
@@ -31,6 +35,38 @@ def mcts_vs_random():
   print(state)
   print(chess.Board(fen=str(state)))
   print_outcome(state, ['mcts', 'random'])
+
+
+def andoma_vs_random():
+  players = [
+    andoma.AndomaBot(search_depth=1),
+    uniform_random.UniformRandomBot(1, np.random.RandomState())
+  ]
+
+  state = play_one_game(players)
+
+  print(state)
+  print(chess.Board(fen=str(state)))
+  print_outcome(state, ['andoma', 'random'])
+
+
+def mcts_incremental_vs_rando():
+  # takes ages!
+  for num_sims in range(1, 11):
+    for num_rollouts in range(1, 11):
+      start = datetime.now()
+      print(f'sims: {num_sims}, rollouts: {num_rollouts}')
+      players = [
+        new_mcts_bot(game, num_sims, num_rollouts),
+        uniform_random.UniformRandomBot(1, np.random.RandomState())
+      ]
+
+      state = play_one_game(players)
+
+      is_draw = winner_idx(state) is None
+      mcts_won = winner_idx(state) == 0
+      result = 'draw' if is_draw else 'mcts: win' if mcts_won else 'mcts: lose'
+      print(f'game over in {datetime.now() - start}, result: {result}', flush=True)
 
 
 def play_one_game(players):

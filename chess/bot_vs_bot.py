@@ -13,32 +13,30 @@ import chess
 from andoma import andoma_bot as andoma
 
 
+game = pyspiel.load_game("chess")
+
+
 def main():
-  play_one_game()
+  mcts_vs_random()
 
 
-def play_one_game():
-  game = pyspiel.load_game("chess")
-  state = game.new_initial_state()
+def mcts_vs_random():
+  players = [
+    new_mcts_bot(game, 2, 1),
+    uniform_random.UniformRandomBot(1, np.random.RandomState())
+  ]
 
-  bots = {
-    'mcts': new_mcts_bot(game, 2, 1),
-    # 'andoma': andoma.AndomaBot(search_depth=1),
-    'random': uniform_random.UniformRandomBot(1, np.random.RandomState())
-  }
-
-  state = play_one_game2(game, bots)
+  state = play_one_game(players)
 
   print(state)
   print(chess.Board(fen=str(state)))
-  print_outcome(state, [type(x).__name__ for x in bots.values()])
+  print_outcome(state, ['mcts', 'random'])
 
 
-def play_one_game2(game, bots):
+def play_one_game(players):
   # plays one game, returns the final state
   state = game.new_initial_state()
-  players = [v for v in bots.values()]
-  player_labels = [k for k in bots.keys()]
+  player_labels = [classname(p) for p in players]
 
   while not state.is_terminal():
     current_player_idx = state.current_player()
@@ -78,11 +76,22 @@ def print_action(state, action):
 
 
 def print_outcome(state: pyspiel.State, player_labels):
-  if all((x == 0 for x in state.returns())):
+  idx = winner_idx(state)
+  if idx is None:
     print('Draw!')
   else:
-    winner = player_labels[0] if state.returns()[0] > 0 else player_labels[1]
-    print(f'winner: {winner}')
+    print(f'winner: {player_labels[idx]}')
+
+
+def winner_idx(state):
+  if all((x == 0 for x in state.returns())):
+    return None
+  else:
+    return 0 if state.returns()[0] > 0 else 1
+
+
+def classname(o):
+  return type(o).__name__
 
 
 if __name__ == '__main__':

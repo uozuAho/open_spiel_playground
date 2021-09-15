@@ -20,14 +20,22 @@ game = pyspiel.load_game("chess")
 
 
 def main():
-  mcts_vs_random()
+  # mcts_vs_random()
   # mcts_incremental_vs_rando()
   # andoma_vs_random()
+  mcts_andoma_vs_random()
 
 
 def mcts_vs_random():
   play_one_game_and_print_results([
     new_mcts_bot(game, 2, mcts.RandomRolloutEvaluator(n_rollouts=1)),
+    uniform_random.UniformRandomBot(1, np.random.RandomState())
+  ])
+
+
+def mcts_andoma_vs_random():
+  play_one_game_and_print_results([
+    new_mcts_bot(game, 2, AndomaValuesRolloutEvaluator()),
     uniform_random.UniformRandomBot(1, np.random.RandomState())
   ])
 
@@ -105,7 +113,8 @@ class AndomaValuesRolloutEvaluator:
      values.
   """
   def __init__(self, n_rollouts=1):
-    self.n_rollouts = n_rollouts
+    # todo: n_rollouts is not needed. Each rollout will be the same!
+    self.n_rollouts = 1
 
   def evaluate(self, state):
     """ 'Rolls out' a complete game, returning the outcome. """

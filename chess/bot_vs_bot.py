@@ -26,29 +26,28 @@ def main():
 
 
 def mcts_vs_random():
-  players = [
+  play_one_game_and_print_results([
     new_mcts_bot(game, 2, 1),
     uniform_random.UniformRandomBot(1, np.random.RandomState())
-  ]
-
-  state = play_one_game(players)
-
-  print(state)
-  print(chess.Board(fen=str(state)))
-  print_outcome(state, ['mcts', 'random'])
+  ])
 
 
 def andoma_vs_random():
-  players = [
+  play_one_game_and_print_results([
     andoma.AndomaBot(search_depth=1),
     uniform_random.UniformRandomBot(1, np.random.RandomState())
-  ]
+  ])
+
+
+def play_one_game_and_print_results(players):
+  player_names = [classname(p) for p in players]
+  print(f'{player_names[0]} (b) vs {player_names[1]} (W)')
 
   state = play_one_game(players)
 
   print(state)
   print(chess.Board(fen=str(state)))
-  print_outcome(state, ['andoma', 'random'])
+  print_outcome(state, player_names)
 
 
 def mcts_incremental_vs_rando():

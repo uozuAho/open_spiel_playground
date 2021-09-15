@@ -13,6 +13,7 @@ from open_spiel.python.bots import uniform_random
 
 import chess
 from andoma import andoma_bot as andoma
+from andoma.movegeneration import get_ordered_moves
 
 
 game = pyspiel.load_game("chess")
@@ -99,6 +100,74 @@ def new_mcts_bot(game, max_sims, num_rollouts, rng=np.random.RandomState()):
       max_simulations=max_sims,
       random_state=rng,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=num_rollouts, random_state=rng))
+
+
+def new_mcts_andoma_bot(game, max_sims, num_rollouts):
+  if max_sims < 2:
+    raise RuntimeError('max_sims must be > 1 ... I think the implementation is broken')
+  return mcts.MCTSBot(
+      game,
+      uct_c=math.sqrt(2),
+      max_simulations=max_sims,
+      evaluator=AndomaValuesRolloutEvaluator(n_rollouts=num_rollouts))
+
+
+class AndomaValuesRolloutEvaluator:
+  """Rollout for MCTS. Greedily picks the best move based on Andoma's move
+     values.
+  """
+  def __init__(self, n_rollouts=1):
+    self.n_rollouts = n_rollouts
+
+  def evaluate(self, state):
+    """ 'Rolls out' a complete game, returning the outcome. """
+    result = None
+    for _ in range(self.n_rollouts):
+      working_state = state.clone()
+      while not working_state.is_terminal():
+        if working_state.is_chance_node():
+          raise RuntimeError("didn't expect a chance node!")
+        else:
+          action = self._best_action(working_state)
+        working_state.apply_action(action)
+      returns = np.array(working_state.returns())
+      result = returns if result is None else result + returns
+
+    return result / self.n_rollouts
+
+  def prior(self, state):
+    """Returns the probability for all actions at the given state. I'll just
+       return 1.0 for the 'best' action, and 0 for the others. Not sure if
+       that's right...
+    """
+    if state.is_chance_node():
+      raise RuntimeError('nope')
+    else:
+      legal_actions = state.legal_actions(state.current_player())
+      best_action = self._best_action(state)
+      return [(a, 1.0 if a == best_action else 0.0) for a in legal_actions]
+
+  def _best_action(self, state: pyspiel.State) -> int:
+    board = chess.Board(str(state))
+    move = get_ordered_moves(board)[0]
+    return self._pychess_to_spiel_move(move, state)
+
+  def _pychess_to_spiel_move(self, move: chess.Move, state: pyspiel.State):
+    # This is necessary, as openspiel's chess SANs differ from pychess's.
+    # For example, in a new game, openspiel lists 'aa3' as a valid action. The
+    # file disambiguation is unnecessary here - pychess lists this valid action
+    # as 'a3'.
+    board = chess.Board(str(state))
+
+    def action_str(action):
+      return state.action_to_string(state.current_player(), action)
+
+    move_map = {board.parse_san(action_str(action)): action for action in state.legal_actions()}
+
+    if move not in move_map:
+      raise RuntimeError(f"{move} is not a legal move!")
+
+    return move_map[move]
 
 
 def print_dbg_state(state: pyspiel.State, player_labels):

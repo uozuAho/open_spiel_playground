@@ -20,14 +20,14 @@ game = pyspiel.load_game("chess")
 
 
 def main():
-  # mcts_vs_random()
+  mcts_vs_random()
   # mcts_incremental_vs_rando()
-  andoma_vs_random()
+  # andoma_vs_random()
 
 
 def mcts_vs_random():
   play_one_game_and_print_results([
-    new_mcts_bot(game, 2, 1),
+    new_mcts_bot(game, 2, mcts.RandomRolloutEvaluator(n_rollouts=1)),
     uniform_random.UniformRandomBot(1, np.random.RandomState())
   ])
 
@@ -54,12 +54,12 @@ def mcts_incremental_vs_rando():
   # Play mcts vs random player, with incrementally increasing MCTS simulations
   # and rollouts.
   # Takes ages!
-  for num_sims in range(1, 11):
+  for num_sims in range(2, 11):
     for num_rollouts in range(1, 11):
       start = datetime.now()
       print(f'sims: {num_sims}, rollouts: {num_rollouts}')
       players = [
-        new_mcts_bot(game, num_sims, num_rollouts),
+        new_mcts_bot(game, num_sims, mcts.RandomRolloutEvaluator(n_rollouts=num_rollouts)),
         uniform_random.UniformRandomBot(1, np.random.RandomState())
       ]
 
@@ -90,25 +90,14 @@ def play_one_game(players):
   return state
 
 
-def new_mcts_bot(game, max_sims, num_rollouts, rng=np.random.RandomState()):
+def new_mcts_bot(game, max_sims, evaluator):
   if max_sims < 2:
     raise RuntimeError('max_sims must be > 1 ... I think the implementation is broken')
   return mcts.MCTSBot(
       game,
       uct_c=math.sqrt(2),
       max_simulations=max_sims,
-      random_state=rng,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=num_rollouts, random_state=rng))
-
-
-def new_mcts_andoma_bot(game, max_sims, num_rollouts):
-  if max_sims < 2:
-    raise RuntimeError('max_sims must be > 1 ... I think the implementation is broken')
-  return mcts.MCTSBot(
-      game,
-      uct_c=math.sqrt(2),
-      max_simulations=max_sims,
-      evaluator=AndomaValuesRolloutEvaluator(n_rollouts=num_rollouts))
+      evaluator=evaluator)
 
 
 class AndomaValuesRolloutEvaluator:

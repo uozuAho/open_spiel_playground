@@ -51,7 +51,9 @@ def andoma_vs_random():
 
 
 def mcts_incremental_vs_rando():
-  # takes ages!
+  # Play mcts vs random player, with incrementally increasing MCTS simulations
+  # and rollouts.
+  # Takes ages!
   for num_sims in range(1, 11):
     for num_rollouts in range(1, 11):
       start = datetime.now()

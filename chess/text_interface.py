@@ -1,18 +1,20 @@
-# play chess via a text interface
+# proof of concept: play chess via a text interface
 
 import pyspiel
+import chess
 
 
 def main():
   game = pyspiel.load_game("chess")
   state = game.new_initial_state()
   while not state.is_terminal():
-    print("state:", state)
+    print(chess.Board(str(state)))
     legal_actions = state.legal_actions()
     action = get_action_from_user(state, legal_actions)
     print("current player: ", state.current_player())
     print("action: ", state.action_to_string(state.current_player(), action))
     state.apply_action(action)
+  print('game over!')
 
 
 def get_action_from_user(state, legal_actions):

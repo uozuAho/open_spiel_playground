@@ -3,4 +3,6 @@ attrs==21.2.0
 chess==1.6.1
 numpy==1.21.2
 open-spiel==1.0.0
+pyzmq==22.3.0
 six==1.16.0
+zmq==0.0.0

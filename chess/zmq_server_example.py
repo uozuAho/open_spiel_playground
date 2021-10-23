@@ -1,4 +1,6 @@
-# proof of concept: play chess via a zmq interface
+# proof of concept: play chess via a zmq request-response interface
+
+import textwrap
 
 import pyspiel
 import chess
@@ -13,39 +15,51 @@ def main():
   run_chess_server(socket)
 
 
+def how_to_play():
+  return textwrap.dedent("""
+      s:      show the current state
+      a:      show legal actions
+      number: perform the corresponding action
+      q:      quit
+  """)
+
+
 def run_chess_server(socket):
   game = pyspiel.load_game("chess")
   state = game.new_initial_state()
   done = False
   while not done:
-    recv_msg = socket.recv()
-    msg = str(chess.Board(str(state)))
-    socket.send(msg.encode('UTF-8'))
-    done = True
+    req = socket.recv().decode('UTF-8')
+    if req == 's':
+      response = str(chess.Board(str(state)))
+    elif req == 'a':
+      response = legal_actions_msg(state)
+    elif req == 'q':
+      response = 'bye!'
+      done = True
+    else:
+      try:
+        action_num = int(req)
+        action = int_to_action(state, action_num)
+        state.apply_action(action)
+        response = str(chess.Board(str(state)))
+      except ValueError:
+        response = how_to_play()
+    socket.send(response.encode('UTF-8'))
 
 
-def run_chess_serverasdf(socket):
-  game = pyspiel.load_game("chess")
-  state = game.new_initial_state()
-  while not state.is_terminal():
-    msg = chess.Board(str(state))
-    legal_actions = state.legal_actions()
-    action = get_action_from_user(state, legal_actions)
-    print("current player: ", state.current_player())
-    print("action: ", state.action_to_string(state.current_player(), action))
-    state.apply_action(action)
-  print('game over!')
+def legal_actions_msg(state):
+  msg = ""
+  for i, action in enumerate(state.legal_actions()):
+    msg += f'  {i}: {action_str(state, action)}\n'
+  return msg
 
 
-def get_action_from_user(state, legal_actions):
-  print('choose an action:')
-  for i, action in enumerate(legal_actions):
-    print('  ', i, action_str(state, action))
-  user_choice = int(input())
-  for i, action in enumerate(legal_actions):
-    if user_choice == i:
+def int_to_action(state, int):
+  for i, action in enumerate(state.legal_actions()):
+    if int == i:
       return action
-  raise RuntimeError('oops!')
+  raise RuntimeError(f'invalid action number: {int}')
 
 
 def action_str(state, action):

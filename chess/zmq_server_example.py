@@ -1,4 +1,4 @@
-# proof of concept: play chess via a text interface
+# proof of concept: play chess via a zmq interface
 
 import pyspiel
 import chess
@@ -10,17 +10,25 @@ def main():
   socket = ctx.socket(zmq.REP)
   socket.bind("tcp://*:5555")
   print("listening on port 5555")
-  while True:
-    msg = socket.recv()
-    print(f'message received: {msg}')
-    socket.send(b"yep!")
+  run_chess_server(socket)
 
 
-def run_game():
+def run_chess_server(socket):
+  game = pyspiel.load_game("chess")
+  state = game.new_initial_state()
+  done = False
+  while not done:
+    recv_msg = socket.recv()
+    msg = str(chess.Board(str(state)))
+    socket.send(msg.encode('UTF-8'))
+    done = True
+
+
+def run_chess_serverasdf(socket):
   game = pyspiel.load_game("chess")
   state = game.new_initial_state()
   while not state.is_terminal():
-    print(chess.Board(str(state)))
+    msg = chess.Board(str(state))
     legal_actions = state.legal_actions()
     action = get_action_from_user(state, legal_actions)
     print("current player: ", state.current_player())

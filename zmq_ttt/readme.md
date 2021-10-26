@@ -18,3 +18,5 @@ What I want
     - client requests do_action
 - compare speeds
 - remote mcts bot. requires storage of state
+- extract usable interfaces
+  - eg. should be able to do `bot = RemoteGameBot(MctsBot(...))`

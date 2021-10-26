@@ -72,22 +72,11 @@ def play_one_game(game, player_1, player_2):
   return state
 
 
-def legal_actions_msg(state):
-  msg = ""
-  for i, action in enumerate(state.legal_actions()):
-    msg += f'  {i}: {action_str(state, action)}\n'
-  return msg
-
-
 def int_to_action(state, int):
   for i, action in enumerate(state.legal_actions()):
     if int == i:
       return action
   raise RuntimeError(f'invalid action number: {int}')
-
-
-def action_str(state, action):
-  return state.action_to_string(state.current_player(), action)
 
 
 if __name__ == "__main__":

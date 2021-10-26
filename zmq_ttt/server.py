@@ -1,3 +1,6 @@
+import json
+from typing import Dict
+
 import pyspiel
 import zmq
 import numpy as np
@@ -14,22 +17,46 @@ def run_ttt_server():
   socket.bind("tcp://*:5555")
   print("listening on port 5555")
   game = pyspiel.load_game("tic_tac_toe")
-  done = False
-  while not done:
-    req = socket.recv().decode('UTF-8')
-    response = 'Hi! You are player 0.'
-    print('Client connected')
-    state = game.new_initial_state()
-    remote_bot = RemoteBot(socket)
-    local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-    done = True
+  socket.recv().decode('UTF-8')
+  response = 'Hi! You are player 0.'
   socket.send(response.encode('UTF-8'))
+  print('Client connected')
+  remote_bot = RemoteBot(socket)
+  local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  play_one_game(game, remote_bot, local_bot)
 
 
 class RemoteBot(pyspiel.Bot):
   def __init__(self, socket: zmq.Socket):
     pyspiel.Bot.__init__(self)
     self._socket = socket
+
+  def step(self, state):
+    # allow any request at this point. Step only finishes when the client
+    # requests 'do action'
+    raw_request = self._socket.recv().decode('UTF-8')
+    request = json.loads(raw_request)
+    response = self.handle_request(request)
+    raw_response = json.dumps(response)
+    self._socket.send(raw_response.encode('UTF-8'))
+
+  def handle_request(self, request: Dict):
+    if request.type == 'legal_actions':
+      return []
+    raise NotImplemented(request)
+
+
+def play_one_game(game, player_1, player_2):
+  players = [player_1, player_2]
+  state = game.new_initial_state()
+
+  while not state.is_terminal():
+    current_player_idx = state.current_player()
+    current_player = players[current_player_idx]
+    action = current_player.step(state)
+    state.apply_action(action)
+
+  return state
 
 
 def legal_actions_msg(state):

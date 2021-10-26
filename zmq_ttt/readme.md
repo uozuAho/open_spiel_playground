@@ -14,7 +14,7 @@ What I want
 - ttt server: use ttt from openspiel
   - allow client to make first move
     - client requests legal actions DONE
-    - server responds
+    - server responds DONE
     - client requests do_action
 - compare speeds
 - remote mcts bot. requires storage of state

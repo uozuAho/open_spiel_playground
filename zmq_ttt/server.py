@@ -46,14 +46,17 @@ class RemoteBot(pyspiel.Bot):
     raw_request = self._socket.recv().decode('UTF-8')
     return json.loads(raw_request)
 
-  def _handle_request(self, state, request: Dict):
-    if request['type'] == 'legal_actions':
-      return []
-    raise NotImplemented(request)
-
   def _send_response(self, response: Dict):
     raw_response = json.dumps(response)
     self._socket.send(raw_response.encode('UTF-8'))
+
+  def _handle_request(self, state, request: Dict):
+    if request['type'] == 'legal_actions':
+      return self._handle_legal_actions(state)
+    raise NotImplemented(request)
+
+  def _handle_legal_actions(self, state) -> Dict:
+    return {i: a for i, a in enumerate(state.legal_actions())}
 
 
 def play_one_game(game, player_1, player_2):

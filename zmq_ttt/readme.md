@@ -11,12 +11,8 @@ What I want
 - client can request current state, legal actions, do_action
 
 # todo
-- ttt server: use ttt from openspiel
-  - allow client to make first move
-    - client requests legal actions DONE
-    - server responds DONE
-    - client requests do_action
-- compare speeds
-- remote mcts bot. requires storage of state
+- compare speed of local_example vs client-server
+  - rate of games played
+- implement remote mcts bot
 - extract usable interfaces
   - eg. should be able to do `bot = RemoteGameBot(MctsBot(...))`

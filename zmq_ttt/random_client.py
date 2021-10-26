@@ -9,6 +9,7 @@ def main():
   bot = ClientBot()
   bot.connect("tcp://localhost:5555")
   bot.run()
+  bot.disconnect()
 
 
 class ClientBot:
@@ -29,11 +30,17 @@ class ClientBot:
       else:
         self.do_random_action(actions)
 
+  def disconnect(self):
+    self._socket.close()
+
   def get_legal_actions(self) -> Dict:
     request = json.dumps({'type': 'legal_actions'})
     self._socket.send(request.encode('UTF-8'))
     raw_response = self._socket.recv().decode('UTF-8')
-    return json.loads(raw_response)
+    response = json.loads(raw_response)
+    if 'EXIT' in response:
+      return None
+    return response
 
   def do_random_action(self, legal_actions: Dict):
     # todo: actions can just be ints

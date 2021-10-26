@@ -24,6 +24,7 @@ def run_ttt_server():
   remote_bot = RemoteBot(socket)
   local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
   state = play_one_game(game, remote_bot, local_bot)
+  remote_bot.wait_for_disconnect()
   print('done')
   print(state)
 
@@ -46,6 +47,11 @@ class RemoteBot(pyspiel.Bot):
         action_done = True
         action = response
     return action
+
+  def wait_for_disconnect(self):
+    self._wait_for_request()
+    self._send_response({'EXIT': True})
+    self._socket.close()
 
   def _wait_for_request(self) -> Dict:
     raw_request = self._socket.recv().decode('UTF-8')

@@ -1,5 +1,7 @@
 import pyspiel
 import zmq
+import numpy as np
+from open_spiel.python.bots import uniform_random
 
 
 def main():
@@ -12,13 +14,22 @@ def run_ttt_server():
   socket.bind("tcp://*:5555")
   print("listening on port 5555")
   game = pyspiel.load_game("tic_tac_toe")
-  state = game.new_initial_state()
   done = False
   while not done:
     req = socket.recv().decode('UTF-8')
-    response = 'yo'
+    response = 'Hi! You are player 0.'
+    print('Client connected')
+    state = game.new_initial_state()
+    remote_bot = RemoteBot(socket)
+    local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
     done = True
   socket.send(response.encode('UTF-8'))
+
+
+class RemoteBot(pyspiel.Bot):
+  def __init__(self, socket: zmq.Socket):
+    pyspiel.Bot.__init__(self)
+    self._socket = socket
 
 
 def legal_actions_msg(state):

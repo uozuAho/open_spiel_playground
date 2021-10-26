@@ -13,7 +13,7 @@ What I want
 # todo
 - ttt server: use ttt from openspiel
   - allow client to make first move
-    - client requests legal actions
+    - client requests legal actions DONE
     - server responds
     - client requests do_action
 - compare speeds

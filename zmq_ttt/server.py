@@ -41,7 +41,7 @@ class RemoteBot(pyspiel.Bot):
     self._socket.send(raw_response.encode('UTF-8'))
 
   def handle_request(self, request: Dict):
-    if request.type == 'legal_actions':
+    if request['type'] == 'legal_actions':
       return []
     raise NotImplemented(request)
 

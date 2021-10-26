@@ -23,7 +23,9 @@ def run_ttt_server():
   print('Client connected')
   remote_bot = RemoteBot(socket)
   local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  play_one_game(game, remote_bot, local_bot)
+  state = play_one_game(game, remote_bot, local_bot)
+  print('done')
+  print(state)
 
 
 class RemoteBot(pyspiel.Bot):
@@ -35,12 +37,15 @@ class RemoteBot(pyspiel.Bot):
     # allow any request at this point. Step only finishes when the client
     # requests 'do action'
     action_done = False
+    action = None
     while not action_done:
       request = self._wait_for_request()
       response = self._handle_request(state, request)
       self._send_response(response)
       if request['type'] == 'do_action':
         action_done = True
+        action = response
+    return action
 
   def _wait_for_request(self) -> Dict:
     raw_request = self._socket.recv().decode('UTF-8')
@@ -53,10 +58,16 @@ class RemoteBot(pyspiel.Bot):
   def _handle_request(self, state, request: Dict):
     if request['type'] == 'legal_actions':
       return self._handle_legal_actions(state)
+    if request['type'] == 'do_action':
+      return self._handle_do_action(request)
     raise NotImplemented(request)
 
   def _handle_legal_actions(self, state) -> Dict:
     return {i: a for i, a in enumerate(state.legal_actions())}
+
+  def _handle_do_action(self, request: Dict):
+    action = int(request['action'])
+    return action
 
 
 def play_one_game(game, player_1, player_2):

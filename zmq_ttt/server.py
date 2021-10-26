@@ -34,16 +34,26 @@ class RemoteBot(pyspiel.Bot):
   def step(self, state):
     # allow any request at this point. Step only finishes when the client
     # requests 'do action'
-    raw_request = self._socket.recv().decode('UTF-8')
-    request = json.loads(raw_request)
-    response = self.handle_request(request)
-    raw_response = json.dumps(response)
-    self._socket.send(raw_response.encode('UTF-8'))
+    action_done = False
+    while not action_done:
+      request = self._wait_for_request()
+      response = self._handle_request(state, request)
+      self._send_response(response)
+      if request['type'] == 'do_action':
+        action_done = True
 
-  def handle_request(self, request: Dict):
+  def _wait_for_request(self) -> Dict:
+    raw_request = self._socket.recv().decode('UTF-8')
+    return json.loads(raw_request)
+
+  def _handle_request(self, state, request: Dict):
     if request['type'] == 'legal_actions':
       return []
     raise NotImplemented(request)
+
+  def _send_response(self, response: Dict):
+    raw_response = json.dumps(response)
+    self._socket.send(raw_response.encode('UTF-8'))
 
 
 def play_one_game(game, player_1, player_2):

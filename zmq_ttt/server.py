@@ -12,21 +12,32 @@ def main():
 
 
 def run_ttt_server():
-  ctx = zmq.Context()
-  socket = ctx.socket(zmq.REP)
-  socket.bind("tcp://*:5555")
+  server = TicTacToeServer("tcp://*:5555")
   print("listening on port 5555")
-  game = pyspiel.load_game("tic_tac_toe")
-  socket.recv().decode('UTF-8')
-  response = 'Hi! You are player 0.'
-  socket.send(response.encode('UTF-8'))
+  server.wait_for_client()
   print('Client connected')
-  remote_bot = RemoteBot(socket)
+  game = pyspiel.load_game("tic_tac_toe")
+  remote_bot = server.get_remote_bot()
   local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
   state = play_one_game(game, remote_bot, local_bot)
   remote_bot.wait_for_disconnect()
   print('done')
   print(state)
+
+
+class TicTacToeServer:
+  def __init__(self, url):
+    ctx = zmq.Context()
+    self._socket = ctx.socket(zmq.REP)
+    self._socket.bind("tcp://*:5555")
+
+  def wait_for_client(self):
+    self._socket.recv().decode('UTF-8')
+    response = 'Hi! You are player 0.'
+    self._socket.send(response.encode('UTF-8'))
+
+  def get_remote_bot(self):
+    return RemoteBot(self._socket)
 
 
 class RemoteBot(pyspiel.Bot):
@@ -87,13 +98,6 @@ def play_one_game(game, player_1, player_2):
     state.apply_action(action)
 
   return state
-
-
-def int_to_action(state, int):
-  for i, action in enumerate(state.legal_actions()):
-    if int == i:
-      return action
-  raise RuntimeError(f'invalid action number: {int}')
 
 
 if __name__ == "__main__":

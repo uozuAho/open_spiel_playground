@@ -11,6 +11,7 @@ What I want
 - client can request current state, legal actions, do_action
 
 # todo
+- see todos
 - compare speed of local_example vs client-server
   - rate of games played
 - implement remote mcts bot

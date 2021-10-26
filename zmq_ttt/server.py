@@ -20,7 +20,7 @@ def run_ttt_server():
   remote_bot = server.get_remote_bot()
   local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
   state = play_one_game(game, remote_bot, local_bot)
-  remote_bot.wait_for_disconnect()
+  server.wait_for_disconnect()
   print('done')
   print(state)
 
@@ -38,6 +38,20 @@ class TicTacToeServer:
 
   def get_remote_bot(self):
     return RemoteBot(self._socket)
+
+  def wait_for_disconnect(self):
+    self._wait_for_request()
+    self._send_response({'EXIT': True})
+    self._socket.close()
+
+  # todo: this is duped in remote bot. extract a 'string server'?
+  def _wait_for_request(self) -> Dict:
+    raw_request = self._socket.recv().decode('UTF-8')
+    return json.loads(raw_request)
+
+  def _send_response(self, response: Dict):
+    raw_response = json.dumps(response)
+    self._socket.send(raw_response.encode('UTF-8'))
 
 
 class RemoteBot(pyspiel.Bot):
@@ -58,11 +72,6 @@ class RemoteBot(pyspiel.Bot):
         action_done = True
         action = response
     return action
-
-  def wait_for_disconnect(self):
-    self._wait_for_request()
-    self._send_response({'EXIT': True})
-    self._socket.close()
 
   def _wait_for_request(self) -> Dict:
     raw_request = self._socket.recv().decode('UTF-8')

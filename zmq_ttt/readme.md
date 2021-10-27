@@ -10,8 +10,16 @@ What I want
   request
 - client can request current state, legal actions, do_action
 
+# try it out
+```sh
+# in one terminal:
+python server.py
+# in another
+python random_client.py
+```
+
 # todo
-- see todos
+- see in-code todos
 - compare speed of local_example vs client-server
   - rate of games played
 - implement remote mcts bot

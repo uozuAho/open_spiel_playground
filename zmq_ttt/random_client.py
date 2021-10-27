@@ -1,8 +1,7 @@
-import json
 import random
 from typing import Dict
 
-import zmq
+from networking import DictClient
 
 
 def main():
@@ -43,29 +42,6 @@ class ClientBot:
     action = random.choice(list(legal_actions.values()))
     self._client.send({'type': 'do_action', 'action': action})
     self._client.recv()
-
-
-class DictClient:
-  """ A request-response client that sends & receives dictionaries.
-      Dictionaries are easy to send & receive, as they are just
-      encoded as JSON.
-  """
-  def __init__(self, url):
-    ctx = zmq.Context()
-    self._socket = ctx.socket(zmq.REQ)
-    self._socket.connect(url)
-
-  def recv(self) -> Dict:
-    raw_message =  self._socket.recv().decode('UTF-8')
-    return json.loads(raw_message)
-
-  # todo: make this receive a response. no need for a separate recv
-  def send(self, message: Dict):
-    json_message = json.dumps(message)
-    self._socket.send(json_message.encode('UTF-8'))
-
-  def close(self):
-    self._socket.close()
 
 
 if __name__ == "__main__":

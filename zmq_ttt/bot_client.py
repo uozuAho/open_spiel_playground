@@ -6,7 +6,7 @@ from networking import DictClient
 
 def main():
   random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot = ClientBot(random_bot)
+  bot = BotClient(random_bot)
   try:
     bot.connect("ipc:///tmp/ttt")
     bot.run()
@@ -14,7 +14,7 @@ def main():
     bot.disconnect()
 
 
-class ClientBot:
+class BotClient:
   def __init__(self, bot):
     self._bot = bot
 

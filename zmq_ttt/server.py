@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, List
 
 import pyspiel
@@ -7,10 +8,11 @@ from networking import DictServer
 
 
 def main():
-  run_ttt_server()
+  # serve_one_game()
+  measure_games_per_second()
 
 
-def run_ttt_server():
+def serve_one_game():
   server = TicTacToeServer("tcp://*:5555")
   print("listening on port 5555")
   server.wait_for_client()
@@ -22,6 +24,24 @@ def run_ttt_server():
   server.wait_for_disconnect()
   print('done')
   print(state)
+
+
+def measure_games_per_second():
+  server = TicTacToeServer("tcp://*:5555")
+  print("listening on port 5555")
+  server.wait_for_client()
+  game = pyspiel.load_game("tic_tac_toe")
+  remote_bot = server.get_remote_bot()
+  local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  last = datetime.now()
+  num_games = 0
+  while True:
+    play_one_game(game, remote_bot, local_bot)
+    num_games += 1
+    if (datetime.now() - last).total_seconds() > 1:
+      print(f'{num_games} games/sec')
+      num_games = 0
+      last = datetime.now()
 
 
 class TicTacToeServer:

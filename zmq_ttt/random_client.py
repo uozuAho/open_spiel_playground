@@ -1,5 +1,5 @@
 import random
-from typing import Dict
+from typing import Dict, List
 
 from networking import DictClient
 
@@ -29,15 +29,14 @@ class ClientBot:
   def disconnect(self):
     self._client.close()
 
-  def get_legal_actions(self) -> Dict:
+  def get_legal_actions(self) -> List:
     response = self._client.send({'type': 'legal_actions'})
     if 'EXIT' in response:
       return None
     return response
 
-  def do_random_action(self, legal_actions: Dict):
-    # todo: actions can just be ints
-    action = random.choice(list(legal_actions.values()))
+  def do_random_action(self, legal_actions: List):
+    action = random.choice(legal_actions)
     self._client.send({'type': 'do_action', 'action': action})
 
 

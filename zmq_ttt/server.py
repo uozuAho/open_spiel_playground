@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 import pyspiel
 import numpy as np
@@ -68,8 +68,8 @@ class RemoteBot(pyspiel.Bot):
       return self._handle_do_action(request)
     raise NotImplemented(request)
 
-  def _handle_legal_actions(self, state) -> Dict:
-    return {i: a for i, a in enumerate(state.legal_actions())}
+  def _handle_legal_actions(self, state) -> List:
+    return state.legal_actions()
 
   def _handle_do_action(self, request: Dict):
     action = int(request['action'])

@@ -13,8 +13,7 @@ def main():
 
 
 def serve_one_game():
-  server = TicTacToeServer("tcp://*:5555")
-  print("listening on port 5555")
+  server = TicTacToeServer("ipc:///tmp/ttt")
   server.wait_for_client()
   print('Client connected')
   game = pyspiel.load_game("tic_tac_toe")
@@ -27,8 +26,7 @@ def serve_one_game():
 
 
 def measure_games_per_second():
-  server = TicTacToeServer("tcp://*:5555")
-  print("listening on port 5555")
+  server = TicTacToeServer("ipc:///tmp/ttt")
   server.wait_for_client()
   game = pyspiel.load_game("tic_tac_toe")
   remote_bot = server.get_remote_bot()

@@ -6,7 +6,7 @@ from networking import DictClient
 
 def main():
   bot = ClientBot()
-  bot.connect("tcp://localhost:5555")
+  bot.connect("ipc:///tmp/ttt")
   bot.run()
   bot.disconnect()
 

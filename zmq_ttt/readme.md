@@ -19,12 +19,14 @@ python random_client.py
 ```
 
 # performance
-Not great! Local (in same process) gets ~10k games/sec. Over ZMQ gets ~150.
-Roughly 100 times slower.
+Not great! Local (in same process) gets ~10k games/sec. Over ZMQ on the same
+machine gets ~150. Roughly 100 times slower. Using IPC vs TCP transports in ZMQ
+makes no difference.
 
 
 # todo
-- try other zmq modes: in proc, pipe etc.
-- implement remote mcts bot
 - extract usable interfaces
   - eg. should be able to do `bot = RemoteGameBot(MctsBot(...))`
+- implement remote mcts bot
+- ideas to improve performance
+  - send legal actions with state

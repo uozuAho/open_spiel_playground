@@ -1,12 +1,23 @@
+import math
+
 import numpy as np
 from open_spiel.python.bots import uniform_random
+from open_spiel.python.algorithms import mcts
 
 from networking import DictClient
 
 
 def main():
-  random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot = BotClient(random_bot)
+  # random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  client = DictClient("ipc:///tmp/ttt")
+  game = RemoteGame(client)
+  mcts_bot = mcts.MCTSBot(
+      game,
+      uct_c=math.sqrt(2),
+      max_simulations=2,
+      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1))
+  # bot = BotClient(random_bot)
+  bot = BotClient(mcts_bot)
   try:
     bot.connect("ipc:///tmp/ttt")
     bot.run()
@@ -33,7 +44,14 @@ class BotClient:
     self._client.close()
 
 
+class RemoteGame:
+  """ Implements an OpenSpiel game, that is usable by existing OpenSpiel bots """
+  def __init__(self, client: DictClient):
+      self._client = client
+
+
 class RemoteState:
+  """ Implements an OpenSpiel state, that is usable by existing OpenSpiel bots """
   def __init__(self, client: DictClient):
       self._client = client
 

@@ -1,6 +1,3 @@
-import random
-from typing import List
-
 import numpy as np
 from open_spiel.python.bots import uniform_random
 
@@ -10,9 +7,11 @@ from networking import DictClient
 def main():
   random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
   bot = ClientBot(random_bot)
-  bot.connect("ipc:///tmp/ttt")
-  bot.run()
-  bot.disconnect()
+  try:
+    bot.connect("ipc:///tmp/ttt")
+    bot.run()
+  finally:
+    bot.disconnect()
 
 
 class ClientBot:
@@ -25,20 +24,13 @@ class ClientBot:
     self._client.send({})
 
   def run(self):
-    done = False
-    while not done:
-      state = RemoteState(self._client)
+    state = RemoteState(self._client)
+    while True:
       action = self._bot.step(state)
       state.apply_action(action)
 
   def disconnect(self):
     self._client.close()
-
-  def get_legal_actions(self) -> List:
-    response = self._client.send({'type': 'legal_actions'})
-    if 'EXIT' in response:
-      return None
-    return response
 
 
 class RemoteState:

@@ -27,37 +27,49 @@ def run_ttt_server():
 
 class TicTacToeServer:
   def __init__(self, url):
-    ctx = zmq.Context()
-    self._socket = ctx.socket(zmq.REP)
-    self._socket.bind("tcp://*:5555")
+    self._server = DictServer(url)
 
   def wait_for_client(self):
-    self._socket.recv().decode('UTF-8')
+    self._server.recv()
     response = 'Hi! You are player 0.'
-    self._socket.send(response.encode('UTF-8'))
+    self._server.send(response)
 
   def get_remote_bot(self):
-    return RemoteBot(self._socket)
+    return RemoteBot(self._server)
 
   def wait_for_disconnect(self):
-    self._wait_for_request()
-    self._send_response({'EXIT': True})
+    self._server.recv()
+    self._server.send({'EXIT': True})
+    self._server.close()
+
+
+class DictServer:
+  """ A request-response server that sends & receives dictionaries.
+      Dictionaries are easy to send & receive, as they are just
+      encoded as JSON.
+  """
+  def __init__(self, url):
+    ctx = zmq.Context()
+    self._socket = ctx.socket(zmq.REP)
+    self._socket.bind(url)
+
+  def recv(self) -> Dict:
+    """ Blocking wait for a request """
+    raw_message =  self._socket.recv().decode('UTF-8')
+    return json.loads(raw_message)
+
+  def send(self, message: Dict):
+    json_message = json.dumps(message)
+    self._socket.send(json_message.encode('UTF-8'))
+
+  def close(self):
     self._socket.close()
-
-  # todo: this is duped in remote bot. extract a 'string server'?
-  def _wait_for_request(self) -> Dict:
-    raw_request = self._socket.recv().decode('UTF-8')
-    return json.loads(raw_request)
-
-  def _send_response(self, response: Dict):
-    raw_response = json.dumps(response)
-    self._socket.send(raw_response.encode('UTF-8'))
 
 
 class RemoteBot(pyspiel.Bot):
-  def __init__(self, socket: zmq.Socket):
+  def __init__(self, server: DictServer):
     pyspiel.Bot.__init__(self)
-    self._socket = socket
+    self._server = server
 
   def step(self, state):
     # allow any request at this point. Step only finishes when the client
@@ -65,21 +77,13 @@ class RemoteBot(pyspiel.Bot):
     action_done = False
     action = None
     while not action_done:
-      request = self._wait_for_request()
+      request = self._server.recv()
       response = self._handle_request(state, request)
-      self._send_response(response)
+      self._server.send(response)
       if request['type'] == 'do_action':
         action_done = True
         action = response
     return action
-
-  def _wait_for_request(self) -> Dict:
-    raw_request = self._socket.recv().decode('UTF-8')
-    return json.loads(raw_request)
-
-  def _send_response(self, response: Dict):
-    raw_response = json.dumps(response)
-    self._socket.send(raw_response.encode('UTF-8'))
 
   def _handle_request(self, state, request: Dict):
     if request['type'] == 'legal_actions':

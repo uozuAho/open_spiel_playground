@@ -36,14 +36,12 @@ class DictClient:
     self._socket = ctx.socket(zmq.REQ)
     self._socket.connect(url)
 
-  def recv(self) -> Dict:
-    raw_message =  self._socket.recv().decode('UTF-8')
-    return json.loads(raw_message)
-
-  # todo: make this receive a response. no need for a separate recv
-  def send(self, message: Dict):
+  def send(self, message: Dict) -> Dict:
+    """ Send a message and blocking wait for a response """
     json_message = json.dumps(message)
     self._socket.send(json_message.encode('UTF-8'))
+    raw_message =  self._socket.recv().decode('UTF-8')
+    return json.loads(raw_message)
 
   def close(self):
     self._socket.close()

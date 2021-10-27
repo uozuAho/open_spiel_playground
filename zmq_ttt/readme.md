@@ -27,6 +27,7 @@ makes no difference.
 # todo
 - extract usable interfaces
   - eg. should be able to do `bot = RemoteGameBot(MctsBot(...))`
+  - client should just be an open spiel bot, using RemoteState and RemoteGame
 - implement remote mcts bot
 - ideas to improve performance
   - send legal actions with state

@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+import pyspiel
 from open_spiel.python.bots import uniform_random
 from open_spiel.python.algorithms import mcts
 
@@ -31,8 +32,6 @@ class BotClient:
 
   def connect(self, url):
     self._client = DictClient(url)
-    # send any message to connect
-    self._client.send({})
 
   def run(self):
     state = RemoteState(self._client)
@@ -48,6 +47,18 @@ class RemoteGame:
   """ Implements an OpenSpiel game, that is usable by existing OpenSpiel bots """
   def __init__(self, client: DictClient):
       self._client = client
+
+  def get_type(self):
+    type = self._client.send({'type': 'game_type'})
+
+    print(type)
+
+    # reward model: I think only 2 are available: https://github.com/deepmind/open_spiel/blob/24371dd6983331a0390df68c8511f99a9e76dacf/open_spiel/spiel.h#L101
+    reward_model = pyspiel.GameType.RewardModel.REWARDS
+    if type['reward_model'] == 'terminal':
+      reward_model = pyspiel.GameType.RewardModel.TERMINAL
+
+    return pyspiel.GameType(reward_model=reward_model)
 
 
 class RemoteState:

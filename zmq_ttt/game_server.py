@@ -14,7 +14,6 @@ def main():
 
 def serve_one_game():
   server = TicTacToeServer("ipc:///tmp/ttt")
-  server.wait_for_client()
   print('Client connected')
   game = pyspiel.load_game("tic_tac_toe")
   remote_bot = server.get_remote_bot()
@@ -27,7 +26,6 @@ def serve_one_game():
 
 def measure_games_per_second():
   server = TicTacToeServer("ipc:///tmp/ttt")
-  server.wait_for_client()
   game = pyspiel.load_game("tic_tac_toe")
   remote_bot = server.get_remote_bot()
   local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
@@ -45,11 +43,6 @@ def measure_games_per_second():
 class TicTacToeServer:
   def __init__(self, url):
     self._server = DictServer(url)
-
-  def wait_for_client(self):
-    self._server.recv()
-    response = 'Hi! You are player 0.'
-    self._server.send(response)
 
   def get_remote_bot(self):
     return RemoteBot(self._server)

@@ -13,9 +13,9 @@ What I want
 # try it out
 ```sh
 # in one terminal:
-python server.py
+python game_server.py
 # in another
-python random_client.py
+python bot_client.py
 ```
 
 # performance
@@ -30,3 +30,4 @@ makes no difference.
 - ideas to improve performance
   - send legal actions with state
   - more efficient (de)serialiser
+- server should have no references to openSpiel

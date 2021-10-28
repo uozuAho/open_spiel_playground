@@ -8,13 +8,12 @@ from networking import DictServer
 
 
 def main():
-  # serve_one_game()
-  measure_games_per_second()
+  serve_one_game()
+  # measure_games_per_second()
 
 
 def serve_one_game():
   server = TicTacToeServer("ipc:///tmp/ttt")
-  print('Client connected')
   game = pyspiel.load_game("tic_tac_toe")
   remote_bot = server.get_remote_bot()
   local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
@@ -77,7 +76,7 @@ class RemoteBot(pyspiel.Bot):
       return self._handle_legal_actions(state)
     if request['type'] == 'do_action':
       return self._handle_do_action(request)
-    raise NotImplemented(request)
+    raise RuntimeError(f'unknown request: {request["type"]}')
 
   def _handle_legal_actions(self, state) -> List:
     return state.legal_actions()

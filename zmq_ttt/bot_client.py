@@ -51,14 +51,32 @@ class RemoteGame:
   def get_type(self):
     type = self._client.send({'type': 'game_type'})
 
-    print(type)
-
     # reward model: I think only 2 are available: https://github.com/deepmind/open_spiel/blob/24371dd6983331a0390df68c8511f99a9e76dacf/open_spiel/spiel.h#L101
     reward_model = pyspiel.GameType.RewardModel.REWARDS
     if type['reward_model'] == 'terminal':
       reward_model = pyspiel.GameType.RewardModel.TERMINAL
 
-    return pyspiel.GameType(reward_model=reward_model)
+    # todo: serialize required parameters for building pyspiel.GameType
+    # this is a shortcut for now:
+    return pyspiel.GameType(
+      short_name="python_tic_tac_toe",
+      long_name="Python Tic-Tac-Toe",
+      dynamics=pyspiel.GameType.Dynamics.SEQUENTIAL,
+      chance_mode=pyspiel.GameType.ChanceMode.DETERMINISTIC,
+      information=pyspiel.GameType.Information.PERFECT_INFORMATION,
+      utility=pyspiel.GameType.Utility.ZERO_SUM,
+      reward_model=reward_model,
+      max_num_players=2,
+      min_num_players=2,
+      provides_information_state_string=True,
+      provides_information_state_tensor=False,
+      provides_observation_string=True,
+      provides_observation_tensor=True,
+      parameter_specification={})
+
+  def max_utility(self):
+    info = self._client.send({'type': 'game_info'})
+    return info['max_utility']
 
 
 class RemoteState:

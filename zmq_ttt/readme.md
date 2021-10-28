@@ -27,6 +27,7 @@ makes no difference.
 # todo
 - implement remote mcts bot
 - make sure random bot still works
+- try inproc transport
 - ideas to improve performance
   - send legal actions with state
   - more efficient (de)serialiser

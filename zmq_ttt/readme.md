@@ -25,6 +25,10 @@ makes no difference.
 
 
 # todo
+- implement RemoteState.clone
+  - implement get_state
+  - pass state with other methods
+  - implement clone
 - implement remote mcts bot
 - make sure random bot still works
 - try inproc transport

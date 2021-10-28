@@ -84,6 +84,9 @@ class RemoteState:
   def __init__(self, client: DictClient):
       self._client = client
 
+  def current_player(self):
+    return self._client.send({'type': 'current_player'})
+
   def legal_actions(self, player_id: int):
     # todo: use player id
     return self._client.send({'type': 'legal_actions'})

@@ -76,6 +76,8 @@ class RemoteBot(pyspiel.Bot):
       return self._handle_legal_actions(state)
     if request['type'] == 'do_action':
       return self._handle_do_action(request)
+    if request['type'] == 'current_player':
+      return self._handle_current_player(state)
     # todo: this class isn't really a bot. It also handles serving game info
     # figure out how to separate this between game server and remote bot
     if request['type'] == 'game_type':
@@ -90,6 +92,9 @@ class RemoteBot(pyspiel.Bot):
   def _handle_do_action(self, request: Dict):
     action = int(request['action'])
     return action
+
+  def _handle_current_player(self, state):
+    return state.current_player()
 
   def _handle_game_type(self):
     return {'reward_model': 'terminal'}

@@ -49,7 +49,6 @@ class TicTacToeServer:
     remote_is_waiting = False
 
     while not self._state.is_terminal():
-      print(self._state)
       current_player_idx = self._state.current_player()
       current_player = players[current_player_idx]
       if current_player is remote_player:
@@ -59,10 +58,11 @@ class TicTacToeServer:
         action = self.serve_until_action_requested(self._state)
         remote_is_waiting = True
       else:
-        print('my turn')
         action = current_player.step(self._state)
-      print('action:', action)
       self._state.apply_action(action)
+
+    if remote_is_waiting:
+      self._server.send({})
 
   def get_remote_bot(self):
     return self

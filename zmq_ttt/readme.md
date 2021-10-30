@@ -23,14 +23,14 @@ Not great! Local (in same process) gets ~10k games/sec. Over ZMQ on the same
 machine gets ~150. Roughly 100 times slower. Using IPC vs TCP transports in ZMQ
 makes no difference.
 
+It appears that the main cost is in remote calls - after adding the pickled game
+state, bundled with legal actions and current player, performance was better!
+Now ~200 games/sec.
 
 # todo
-- merge game server and remote bot
-- move play_one_game to server
-- move games/sec to server
 - implement RemoteState.clone
   - implement get_state DONE
-  - pass state with other methods
+  - pass state with other methods DONE
   - implement clone
 - implement remote mcts bot
 - make sure random bot still works

@@ -13,8 +13,8 @@ def main():
   # serve_one_game()
   # measure_games_per_second()
   server = TicTacToeServer("ipc:///tmp/ttt")
-  # server.serve_one_game()
-  server.measure_games_per_second()
+  server.serve_one_game()
+  # server.measure_games_per_second()
 
 
 class TicTacToeServer:
@@ -41,15 +41,27 @@ class TicTacToeServer:
         num_games = 0
         last = datetime.now()
 
-  def play_one_game(self, opponent):
+  def play_one_game(self, local_player):
     self._state = self._game.new_initial_state()
 
-    players = [self, opponent]
+    remote_player = self  # this is confusing...
+    players = [remote_player, local_player]
+    remote_is_waiting = False
 
     while not self._state.is_terminal():
+      print(self._state)
       current_player_idx = self._state.current_player()
       current_player = players[current_player_idx]
-      action = current_player.step(self._state)
+      if current_player is remote_player:
+        if remote_is_waiting:
+          self._server.send(self._state_as_dict(self._state))
+          remote_is_waiting = False
+        action = self.serve_until_action_requested(self._state)
+        remote_is_waiting = True
+      else:
+        print('my turn')
+        action = current_player.step(self._state)
+      print('action:', action)
       self._state.apply_action(action)
 
   def get_remote_bot(self):
@@ -60,18 +72,17 @@ class TicTacToeServer:
     self._server.send({'EXIT': True})
     self._server.close()
 
-  def step(self, state):
-    # allow any request at this point. Step only finishes when the client
-    # requests 'do action'
+  def serve_until_action_requested(self, state):
     action_done = False
     action = None
     while not action_done:
       request = self._server.recv()
       response = self._handle_request(state, request)
-      self._server.send(response)
       if request['type'] == 'do_action':
         action_done = True
         action = response
+      else:
+        self._server.send(response)
     return action
 
   def _handle_request(self, state, request: Dict):
@@ -100,6 +111,9 @@ class TicTacToeServer:
     return state.current_player()
 
   def _handle_get_state(self, state):
+    return self._state_as_dict(state)
+
+  def _state_as_dict(self, state):
     return {
       # state_str: A string that the server can use to rebuild the state.
       #            Not used by clients.

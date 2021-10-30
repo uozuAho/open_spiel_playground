@@ -86,17 +86,17 @@ class RemoteState:
       self._state = None
 
   def current_player(self):
-    return self._client.send({'type': 'current_player'})
-    # return self._get_state()['current_player']
+    return self._get_state()['current_player']
 
   def legal_actions(self, player_id: int):
-    return self._client.send({'type': 'legal_actions'})
-    # return self._get_state()['legal_actions']
+    print('legal actions', self._get_state()['legal_actions'])
+    return self._get_state()['legal_actions']
 
   def apply_action(self, action: int):
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
     # which is what is currently used to serialise messages.
-    self._client.send({'type': 'do_action', 'action': int(action)})
+    print('apply action', action)
+    self._state = self._client.send({'type': 'do_action', 'action': int(action)})
 
   def _get_state(self):
     if not self._state:

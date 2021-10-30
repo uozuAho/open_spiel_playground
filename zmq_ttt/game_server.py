@@ -91,12 +91,8 @@ class TicTacToeServer:
     return action
 
   def _handle_request(self, state, request: Dict):
-    if request['type'] == 'legal_actions':
-      return self._handle_legal_actions(state)
     if request['type'] == 'apply_action':
       return self._handle_apply_action(request)
-    if request['type'] == 'current_player':
-      return self._handle_current_player(state)
     if request['type'] == 'get_state':
       return self._handle_get_state(state)
     if request['type'] == 'game_type':
@@ -105,15 +101,9 @@ class TicTacToeServer:
       return self._handle_game_info()
     raise RuntimeError(f'unknown request: {request["type"]}')
 
-  def _handle_legal_actions(self, state) -> List:
-    return state.legal_actions()
-
   def _handle_apply_action(self, request: Dict):
     action = int(request['action'])
     return action
-
-  def _handle_current_player(self, state):
-    return state.current_player()
 
   def _handle_get_state(self, state):
     return self._state_as_dict(state)

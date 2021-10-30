@@ -11,14 +11,14 @@ from networking import DictClient
 def main():
   client = DictClient("ipc:///tmp/ttt")
   game = RemoteGame(client)
-  # random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  # bot = BotClient(random_bot)
-  mcts_bot = mcts.MCTSBot(
-      game,
-      uct_c=math.sqrt(2),
-      max_simulations=5,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=5))
-  bot = BotClient(mcts_bot)
+  random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  bot = BotClient(random_bot)
+  # mcts_bot = mcts.MCTSBot(
+  #     game,
+  #     uct_c=math.sqrt(2),
+  #     max_simulations=5,
+  #     evaluator=mcts.RandomRolloutEvaluator(n_rollouts=5))
+  # bot = BotClient(mcts_bot)
   try:
     bot.connect("ipc:///tmp/ttt")
     bot.run()
@@ -105,7 +105,7 @@ class RemoteState:
   def apply_action(self, action: int):
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
     # which is what is currently used to serialise messages.
-    self._state = self._client.send({'type': 'do_action', 'action': int(action)})
+    self._state = self._client.send({'type': 'apply_action', 'action': int(action)})
 
   def _get_state(self):
     if not self._state:

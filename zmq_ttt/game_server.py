@@ -83,7 +83,7 @@ class TicTacToeServer:
     while not action_done:
       request = self._server.recv()
       response = self._handle_request(state, request)
-      if request['type'] == 'do_action':
+      if request['type'] == 'apply_action':
         action_done = True
         action = response
       else:
@@ -93,8 +93,8 @@ class TicTacToeServer:
   def _handle_request(self, state, request: Dict):
     if request['type'] == 'legal_actions':
       return self._handle_legal_actions(state)
-    if request['type'] == 'do_action':
-      return self._handle_do_action(request)
+    if request['type'] == 'apply_action':
+      return self._handle_apply_action(request)
     if request['type'] == 'current_player':
       return self._handle_current_player(state)
     if request['type'] == 'get_state':
@@ -108,7 +108,7 @@ class TicTacToeServer:
   def _handle_legal_actions(self, state) -> List:
     return state.legal_actions()
 
-  def _handle_do_action(self, request: Dict):
+  def _handle_apply_action(self, request: Dict):
     action = int(request['action'])
     return action
 

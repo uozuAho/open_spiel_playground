@@ -13,44 +13,44 @@ def main():
   # serve_one_game()
   # measure_games_per_second()
   server = TicTacToeServer("ipc:///tmp/ttt")
-  server.play_one_game()
-
-
-def measure_games_per_second():
-  server = TicTacToeServer("ipc:///tmp/ttt")
-  game = pyspiel.load_game("tic_tac_toe")
-  remote_bot = server.get_remote_bot()
-  local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  last = datetime.now()
-  num_games = 0
-  while True:
-    play_one_game(game, remote_bot, local_bot)
-    num_games += 1
-    if (datetime.now() - last).total_seconds() > 1:
-      print(f'{num_games} games/sec')
-      num_games = 0
-      last = datetime.now()
+  # server.serve_one_game()
+  server.measure_games_per_second()
 
 
 class TicTacToeServer:
   def __init__(self, url):
     self._server = DictServer(url)
+    self._game = pyspiel.load_game("tic_tac_toe")
 
-  def play_one_game(self):
-    game = pyspiel.load_game("tic_tac_toe")
+  def serve_one_game(self):
     local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-    players = [self, local_bot]
-    state = game.new_initial_state()
-
-    while not state.is_terminal():
-      current_player_idx = state.current_player()
-      current_player = players[current_player_idx]
-      action = current_player.step(state)
-      state.apply_action(action)
-
+    self.play_one_game(local_bot)
     self.wait_for_disconnect()
     print('done')
-    print(state)
+    print(self._state)
+
+  def measure_games_per_second(self):
+    local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+    last = datetime.now()
+    num_games = 0
+    while True:
+      self.play_one_game(local_bot)
+      num_games += 1
+      if (datetime.now() - last).total_seconds() > 1:
+        print(f'{num_games} games/sec')
+        num_games = 0
+        last = datetime.now()
+
+  def play_one_game(self, opponent):
+    self._state = self._game.new_initial_state()
+
+    players = [self, opponent]
+
+    while not self._state.is_terminal():
+      current_player_idx = self._state.current_player()
+      current_player = players[current_player_idx]
+      action = current_player.step(self._state)
+      self._state.apply_action(action)
 
   def get_remote_bot(self):
     return self
@@ -83,8 +83,6 @@ class TicTacToeServer:
       return self._handle_current_player(state)
     if request['type'] == 'get_state':
       return self._handle_get_state(state)
-    # todo: this class isn't really a bot. It also handles serving game info
-    # figure out how to separate this between game server and remote bot
     if request['type'] == 'game_type':
       return self._handle_game_type()
     if request['type'] == 'game_info':
@@ -115,19 +113,6 @@ class TicTacToeServer:
 
   def _handle_game_info(self):
     return {'max_utility': 1, 'min_utility': -1}
-
-
-def play_one_game(game, player_1, player_2):
-  players = [player_1, player_2]
-  state = game.new_initial_state()
-
-  while not state.is_terminal():
-    current_player_idx = state.current_player()
-    current_player = players[current_player_idx]
-    action = current_player.step(state)
-    state.apply_action(action)
-
-  return state
 
 
 if __name__ == "__main__":

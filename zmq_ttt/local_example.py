@@ -1,8 +1,10 @@
 from datetime import datetime
+import math
 import numpy as np
 
 import pyspiel
 from open_spiel.python.bots import uniform_random
+from open_spiel.python.algorithms import mcts
 
 
 def main():
@@ -27,15 +29,27 @@ def play_one_demo_game():
 def print_games_per_second():
   game = pyspiel.load_game("tic_tac_toe")
   bot_1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
-  bot_2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  # bot_2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  bot_2 = mcts.MCTSBot(
+      game,
+      uct_c=math.sqrt(2),
+      # starts beating random bot at ~ 3 sims, 1 rollout
+      max_simulations=10,
+      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=5))
 
   last = datetime.now()
   num_games = 0
+  bot_1_wins = 0
+  bot_2_wins = 0
   while True:
-    play_one_game(game, bot_1, bot_2)
+    state = play_one_game(game, bot_1, bot_2)
+    if state.returns()[0] > 0:
+      bot_1_wins += 1
+    else:
+      bot_2_wins += 1
     num_games += 1
     if (datetime.now() - last).total_seconds() > 1:
-      print(f'{num_games} games/sec')
+      print(f'{num_games} games/sec. wins: bot 1: {bot_1_wins}, bot 2: {bot_2_wins}')
       num_games = 0
       last = datetime.now()
 

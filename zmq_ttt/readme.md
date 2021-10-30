@@ -29,6 +29,7 @@ Not great!
 # todo
 - is remote mcts working? should win most games
   - hmm seems not. try local example
+    - client needs to send state
 - make sure random bot still works
 - try inproc transport: where is the performance loss?
 - ideas to improve performance

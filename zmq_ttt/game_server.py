@@ -13,8 +13,8 @@ def main():
   # serve_one_game()
   # measure_games_per_second()
   server = TicTacToeServer("ipc:///tmp/ttt")
-  server.serve_one_game()
-  # server.measure_games_per_second()
+  # server.serve_one_game()
+  server.measure_games_per_second()
 
 
 class TicTacToeServer:
@@ -33,11 +33,17 @@ class TicTacToeServer:
     local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
     last = datetime.now()
     num_games = 0
+    local_wins = 0
+    remote_wins = 0
     while True:
-      self.play_one_game(local_bot)
+      state = self.play_one_game(local_bot)
+      if state.returns()[0] > 0:
+        remote_wins += 1
+      else:
+        local_wins += 1
       num_games += 1
       if (datetime.now() - last).total_seconds() > 1:
-        print(f'{num_games} games/sec')
+        print(f'{num_games} games/sec. wins: remote: {remote_wins}, local: {local_wins}')
         num_games = 0
         last = datetime.now()
 
@@ -64,8 +70,7 @@ class TicTacToeServer:
     if remote_is_waiting:
       self._server.send({})
 
-  def get_remote_bot(self):
-    return self
+    return self._state
 
   def wait_for_disconnect(self):
     self._server.recv()
@@ -119,7 +124,9 @@ class TicTacToeServer:
       #            Not used by clients.
       'state_str': str(base64.b64encode(pickle.dumps(state))),
       'current_player': state.current_player(),
-      'legal_actions': state.legal_actions()
+      'legal_actions': state.legal_actions(),
+      'is_terminal': state.is_terminal(),
+      'is_chance_node': state.is_chance_node()
     }
 
   def _handle_game_type(self):

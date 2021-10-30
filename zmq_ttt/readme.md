@@ -28,7 +28,8 @@ state, bundled with legal actions and current player, performance was better!
 Now ~200 games/sec.
 
 # todo
-- implement remote mcts bot
+- is remote mcts working? should win most games
+  - hmm seems not. try local example
 - make sure random bot still works
 - try inproc transport
 - ideas to improve performance

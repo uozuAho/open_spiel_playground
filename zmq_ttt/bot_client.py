@@ -16,8 +16,8 @@ def main():
   mcts_bot = mcts.MCTSBot(
       game,
       uct_c=math.sqrt(2),
-      max_simulations=2,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1))
+      max_simulations=5,
+      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=5))
   bot = BotClient(mcts_bot)
   try:
     bot.connect("ipc:///tmp/ttt")
@@ -92,8 +92,15 @@ class RemoteState:
   def current_player(self):
     return self._get_state()['current_player']
 
-  def legal_actions(self, player_id: int):
+  def legal_actions(self, player_id: int=0):
+    # todo: implement player_id
     return self._get_state()['legal_actions']
+
+  def is_terminal(self):
+    return self._get_state()['is_terminal']
+
+  def is_chance_node(self):
+    return self._get_state()['is_chance_node']
 
   def apply_action(self, action: int):
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,

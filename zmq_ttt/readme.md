@@ -25,8 +25,11 @@ makes no difference.
 
 
 # todo
+- merge game server and remote bot
+- move play_one_game to server
+- move games/sec to server
 - implement RemoteState.clone
-  - implement get_state
+  - implement get_state DONE
   - pass state with other methods
   - implement clone
 - implement remote mcts bot

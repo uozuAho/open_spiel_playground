@@ -10,8 +10,8 @@ from networking import DictServer
 
 
 def main():
-  # serve_one_game()
-  measure_games_per_second()
+  serve_one_game()
+  # measure_games_per_second()
 
 
 def serve_one_game():
@@ -46,18 +46,12 @@ class TicTacToeServer:
     self._server = DictServer(url)
 
   def get_remote_bot(self):
-    return RemoteBot(self._server)
+    return self
 
   def wait_for_disconnect(self):
     self._server.recv()
     self._server.send({'EXIT': True})
     self._server.close()
-
-
-class RemoteBot(pyspiel.Bot):
-  def __init__(self, server: DictServer):
-    pyspiel.Bot.__init__(self)
-    self._server = server
 
   def step(self, state):
     # allow any request at this point. Step only finishes when the client

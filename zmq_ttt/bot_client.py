@@ -11,14 +11,14 @@ from networking import DictClient
 def main():
   client = DictClient("ipc:///tmp/ttt")
   game = RemoteGame(client)
-  random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot = BotClient(random_bot)
-  # mcts_bot = mcts.MCTSBot(
-  #     game,
-  #     uct_c=math.sqrt(2),
-  #     max_simulations=2,
-  #     evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1))
-  # bot = BotClient(mcts_bot)
+  # random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  # bot = BotClient(random_bot)
+  mcts_bot = mcts.MCTSBot(
+      game,
+      uct_c=math.sqrt(2),
+      max_simulations=2,
+      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1))
+  bot = BotClient(mcts_bot)
   try:
     bot.connect("ipc:///tmp/ttt")
     bot.run()
@@ -81,9 +81,13 @@ class RemoteGame:
 
 class RemoteState:
   """ Implements an OpenSpiel state, that is usable by existing OpenSpiel bots """
-  def __init__(self, client: DictClient):
+  def __init__(self, client: DictClient, state=None):
       self._client = client
-      self._state = None
+      self._state = state
+
+  def clone(self):
+    # todo: is this enough, or should I copy _state?
+    return RemoteState(self._client, self._state)
 
   def current_player(self):
     return self._get_state()['current_player']

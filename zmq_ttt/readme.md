@@ -28,10 +28,6 @@ state, bundled with legal actions and current player, performance was better!
 Now ~200 games/sec.
 
 # todo
-- implement RemoteState.clone
-  - implement get_state DONE
-  - pass state with other methods DONE
-  - implement clone
 - implement remote mcts bot
 - make sure random bot still works
 - try inproc transport

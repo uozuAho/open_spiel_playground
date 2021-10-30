@@ -10,19 +10,10 @@ from networking import DictServer
 
 
 def main():
-  serve_one_game()
+  # serve_one_game()
   # measure_games_per_second()
-
-
-def serve_one_game():
   server = TicTacToeServer("ipc:///tmp/ttt")
-  game = pyspiel.load_game("tic_tac_toe")
-  remote_bot = server.get_remote_bot()
-  local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  state = play_one_game(game, remote_bot, local_bot)
-  server.wait_for_disconnect()
-  print('done')
-  print(state)
+  server.play_one_game()
 
 
 def measure_games_per_second():
@@ -44,6 +35,22 @@ def measure_games_per_second():
 class TicTacToeServer:
   def __init__(self, url):
     self._server = DictServer(url)
+
+  def play_one_game(self):
+    game = pyspiel.load_game("tic_tac_toe")
+    local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+    players = [self, local_bot]
+    state = game.new_initial_state()
+
+    while not state.is_terminal():
+      current_player_idx = state.current_player()
+      current_player = players[current_player_idx]
+      action = current_player.step(state)
+      state.apply_action(action)
+
+    self.wait_for_disconnect()
+    print('done')
+    print(state)
 
   def get_remote_bot(self):
     return self

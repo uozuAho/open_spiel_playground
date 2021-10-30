@@ -9,16 +9,16 @@ from networking import DictClient
 
 
 def main():
-  # random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
   client = DictClient("ipc:///tmp/ttt")
   game = RemoteGame(client)
-  mcts_bot = mcts.MCTSBot(
-      game,
-      uct_c=math.sqrt(2),
-      max_simulations=2,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1))
-  # bot = BotClient(random_bot)
-  bot = BotClient(mcts_bot)
+  random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  bot = BotClient(random_bot)
+  # mcts_bot = mcts.MCTSBot(
+  #     game,
+  #     uct_c=math.sqrt(2),
+  #     max_simulations=2,
+  #     evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1))
+  # bot = BotClient(mcts_bot)
   try:
     bot.connect("ipc:///tmp/ttt")
     bot.run()
@@ -83,18 +83,23 @@ class RemoteState:
   """ Implements an OpenSpiel state, that is usable by existing OpenSpiel bots """
   def __init__(self, client: DictClient):
       self._client = client
+      self._state = None
 
   def current_player(self):
-    return self._client.send({'type': 'current_player'})
+    return self._get_state()['current_player']
 
   def legal_actions(self, player_id: int):
-    # todo: use player id
-    return self._client.send({'type': 'legal_actions'})
+    return self._get_state()['legal_actions']
 
   def apply_action(self, action: int):
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
     # which is what is currently used to serialise messages.
     self._client.send({'type': 'do_action', 'action': int(action)})
+
+  def _get_state(self):
+    if not self._state:
+      self._state = self._client.send({'type': 'get_state'})
+    return self._state
 
 
 if __name__ == "__main__":

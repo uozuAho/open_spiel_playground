@@ -1,4 +1,6 @@
+import base64
 from datetime import datetime
+import pickle
 from typing import Dict, List
 
 import pyspiel
@@ -8,8 +10,8 @@ from networking import DictServer
 
 
 def main():
-  serve_one_game()
-  # measure_games_per_second()
+  # serve_one_game()
+  measure_games_per_second()
 
 
 def serve_one_game():
@@ -78,6 +80,8 @@ class RemoteBot(pyspiel.Bot):
       return self._handle_do_action(request)
     if request['type'] == 'current_player':
       return self._handle_current_player(state)
+    if request['type'] == 'get_state':
+      return self._handle_get_state(state)
     # todo: this class isn't really a bot. It also handles serving game info
     # figure out how to separate this between game server and remote bot
     if request['type'] == 'game_type':
@@ -95,6 +99,15 @@ class RemoteBot(pyspiel.Bot):
 
   def _handle_current_player(self, state):
     return state.current_player()
+
+  def _handle_get_state(self, state):
+    return {
+      # state_str: A string that the server can use to rebuild the state.
+      #            Not used by clients.
+      'state_str': str(base64.b64encode(pickle.dumps(state))),
+      'current_player': state.current_player(),
+      'legal_actions': state.legal_actions()
+    }
 
   def _handle_game_type(self):
     return {'reward_model': 'terminal'}

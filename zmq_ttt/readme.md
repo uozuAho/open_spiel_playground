@@ -1,5 +1,8 @@
 # remote tic tac toe using ZMQ
 
+Work in progress. Code is very messy, just trying to prove that this is
+feasible.
+
 What I want
 - game server implemented in remote env.
 - use openspiel bots to play remote game
@@ -8,7 +11,6 @@ What I want
 - bot client -> game server
 - server plays as much of game as possible, until next blocking wait for client
   request
-- client can request current state, legal actions, do_action
 
 # try it out
 ```sh
@@ -19,20 +21,16 @@ python bot_client.py
 ```
 
 # performance
-Not great! Local (in same process) gets ~10k games/sec. Over ZMQ on the same
-machine gets ~150. Roughly 100 times slower. Using IPC vs TCP transports in ZMQ
-makes no difference.
-
-It appears that the main cost is in remote calls - after adding the pickled game
-state, bundled with legal actions and current player, performance was better!
-Now ~200 games/sec.
+Not great!
+- local (in same process) random vs random bots gets ~10k games/sec
+- over ZMQ, random vs random bots gets ~200 games/sec
+- using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
 - is remote mcts working? should win most games
   - hmm seems not. try local example
 - make sure random bot still works
-- try inproc transport
+- try inproc transport: where is the performance loss?
 - ideas to improve performance
-  - send legal actions with state
-  - more efficient (de)serialiser
+  - more efficient (de)serialiser?
 - server should have no references to openSpiel

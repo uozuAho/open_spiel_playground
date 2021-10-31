@@ -99,7 +99,6 @@ class RemoteState:
       self._state = state
 
   def clone(self):
-    # todo: is this enough, or should I copy _state?
     return RemoteState(self._client, self._state)
 
   def current_player(self):
@@ -123,19 +122,17 @@ class RemoteState:
     # note: 'step' isn't part of an OpenSpiel state, but we need a way of
     # indicating to the server that this is a 'real' action, not part of a
     # simulation.
-    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
-    # which is what is currently used to serialise messages.
+    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints.
     self._state = self._client.send({
       'type': 'step',
-      'action': int(action),
-      'state_str': self._state['state_str']})
+      'action': int(action)})
 
     return self._state
 
   def apply_action(self, action: int):
-    dbg_print('client action')
-    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
-    # which is what is currently used to serialise messages.
+    """ Ask the server to apply the given action to the given state """
+    dbg_print(f'client apply action {action}')
+    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints.
     self._state = self._client.send({
       'type': 'apply_action',
       'action': int(action),

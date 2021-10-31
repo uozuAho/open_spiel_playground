@@ -2,7 +2,7 @@ import base64
 from datetime import datetime, timedelta
 import time
 import pickle
-from typing import Dict, List
+from typing import Dict
 
 import pyspiel
 import numpy as np

@@ -27,12 +27,12 @@ def local_random_vs_random():
 
 def random_vs_remote_random():
   print("random_vs_remote_random")
-  server = TicTacToeServer("ipc:///tmp/ttt")
+  server = TicTacToeServer("tcp://*:5555")
   server_process = Process(target=server.measure_games_per_second, args=(3,))
   server_process.start()
 
   random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot = BotClient(random_bot_builder, "ipc:///tmp/ttt")
+  bot = BotClient(random_bot_builder, "tcp://localhost:5555")
 
   client_process = Process(target=bot.run)
   client_process.start()
@@ -55,7 +55,7 @@ def local_random_vs_mcts():
 
 def random_vs_remote_mcts():
   print("random_vs_remote_mcts")
-  server = TicTacToeServer("ipc:///tmp/ttt")
+  server = TicTacToeServer("tcp://*:5555")
   server_process = Process(target=server.measure_games_per_second, args=(3,))
   server_process.start()
 
@@ -65,7 +65,7 @@ def random_vs_remote_mcts():
       # starts beating random bot at ~ 3 sims, 1 rollout
       max_simulations=3,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = BotClient(mcts_bot_builder, "ipc:///tmp/ttt")
+  bot = BotClient(mcts_bot_builder, "tcp://localhost:5555")
 
   client_process = Process(target=bot.run)
   client_process.start()

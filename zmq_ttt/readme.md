@@ -56,7 +56,6 @@ python bot_client.py
 - using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
-- change back to tcp
 - perf test: dummy local dict client/server
 - cleanup, tests, 'harden'
   - handle bots in either order?

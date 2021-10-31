@@ -14,7 +14,7 @@ DEBUG=False
 
 
 def main():
-  server = TicTacToeServer("ipc:///tmp/ttt")
+  server = TicTacToeServer("tcp://*:5555")
   server.serve_one_game()
   # server.measure_games_per_second()
 

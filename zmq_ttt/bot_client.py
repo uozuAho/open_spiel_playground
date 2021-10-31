@@ -17,7 +17,7 @@ def main():
       uct_c=math.sqrt(2),
       max_simulations=4,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = BotClient(bot_builder, "ipc:///tmp/ttt")
+  bot = BotClient(bot_builder, "tcp://localhost:5555")
   try:
     bot.run()
   finally:

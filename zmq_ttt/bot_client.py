@@ -38,6 +38,9 @@ class BotClient:
       print('client b')
       new_state = state.step(action)
       print('client c')
+      if 'GAME_OVER' in new_state:
+        print('client game over')
+        state = RemoteState(self._client)
       if 'EXIT' in new_state:
         print('client exit received')
         break

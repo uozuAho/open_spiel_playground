@@ -1,14 +1,19 @@
 from datetime import datetime, timedelta
 import math
+from multiprocessing import Process
 import numpy as np
 
 import pyspiel
 from open_spiel.python.bots import uniform_random
 from open_spiel.python.algorithms import mcts
 
+from game_server import TicTacToeServer
+from bot_client import BotClient
+
 
 def main():
   random_vs_random()
+  random_vs_remote_random()
   random_vs_mcts()
 
 
@@ -17,6 +22,22 @@ def random_vs_random():
   b1 = lambda game : uniform_random.UniformRandomBot(0, np.random.RandomState())
   b2 = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
   print_games_per_second(b1, b2, time_limit_s=3)
+
+
+def random_vs_remote_random():
+  print("random_vs_remote_random")
+  server = TicTacToeServer("ipc:///tmp/ttt")
+  server_process = Process(target=server.measure_games_per_second, args=(3,))
+  server_process.start()
+
+  random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
+  bot = BotClient(random_bot_builder, "ipc:///tmp/ttt")
+
+  client_process = Process(target=bot.run)
+  client_process.start()
+
+  client_process.join()
+  server_process.join()
 
 
 def random_vs_mcts():

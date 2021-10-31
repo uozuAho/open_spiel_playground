@@ -1,5 +1,5 @@
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import pickle
 from typing import Dict, List
@@ -31,14 +31,17 @@ class TicTacToeServer:
     time.sleep(0.1)
     self._server.close()
 
-  def measure_games_per_second(self):
+  def measure_games_per_second(self, time_limit_s):
+    self._server = DictServer(self._url)
+    self._game = pyspiel.load_game("tic_tac_toe")
     local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+    end = datetime.now() + timedelta(seconds=time_limit_s)
     last = datetime.now()
     num_games = 0
     local_wins = 0
     remote_wins = 0
-    while True:
-      state = self.play_one_game(local_bot)
+    while datetime.now() < end:
+      state = self.play_one_game(local_bot, exit=False)
       if state.returns()[0] > 0:
         remote_wins += 1
       else:
@@ -48,8 +51,9 @@ class TicTacToeServer:
         print(f'{num_games} games/sec. wins: remote: {remote_wins}, local: {local_wins}')
         num_games = 0
         last = datetime.now()
+    self.play_one_game(local_bot, exit=True)
 
-  def play_one_game(self, local_player):
+  def play_one_game(self, local_player, exit=True):
     print('qwer')
     self._state = self._game.new_initial_state()
 
@@ -64,6 +68,7 @@ class TicTacToeServer:
       if current_player is remote_player:
         print('remote turn')
         if remote_is_waiting:
+          print('send state')
           self._server.send(self._state_as_dict(self._state))
           remote_is_waiting = False
         action = self.serve_until_step_requested(self._state)
@@ -74,8 +79,11 @@ class TicTacToeServer:
       self._state.apply_action(action)
 
     if remote_is_waiting:
-      print('server send exit')
-      self._server.send({'EXIT': True})
+      if exit:
+        print('server send exit')
+        self._server.send({'EXIT': True})
+      else:
+        self._server.send({'GAME_OVER': True})
 
     return self._state
 

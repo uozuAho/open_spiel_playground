@@ -32,6 +32,7 @@ Not great!
 - cleanup, tests, 'harden'
   - make sure random bot still works
   - handle bots in either order?
+- try random & mcts vs pandemic game
 - better demo/comparison of local vs remote performance
 - try inproc transport: where is the performance loss?
 - ideas to improve performance

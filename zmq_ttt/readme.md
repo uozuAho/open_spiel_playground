@@ -27,9 +27,8 @@ Not great!
 - using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
-- is remote mcts working? should win most games
-  - hmm seems not. try local example
-    - client needs to send state
+- impl remote 'apply action'
+- does remote mcts now win?
 - make sure random bot still works
 - try inproc transport: where is the performance loss?
 - ideas to improve performance

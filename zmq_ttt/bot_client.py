@@ -37,7 +37,7 @@ class BotClient:
     state = RemoteState(self._client)
     while True:
       action = self._bot.step(state)
-      state.apply_action(action)
+      state.step(action)
 
   def disconnect(self):
     self._client.close()
@@ -102,11 +102,11 @@ class RemoteState:
   def is_chance_node(self):
     return self._get_state()['is_chance_node']
 
-  def apply_action(self, action: int):
+  def step(self, action: int):
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
     # which is what is currently used to serialise messages.
     self._state = self._client.send({
-      'type': 'apply_action',
+      'type': 'step',
       'action': int(action),
       'state_str': self._state['state_str']})
 

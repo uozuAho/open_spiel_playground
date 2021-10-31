@@ -7,6 +7,8 @@ from open_spiel.python.algorithms import mcts
 
 from networking import DictClient
 
+DEBUG=False
+
 
 def main():
   # bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
@@ -22,6 +24,11 @@ def main():
     bot.disconnect()
 
 
+def dbg_print(message):
+  if DEBUG:
+    print(message)
+
+
 class BotClient:
   def __init__(self, bot_builder, url):
     self._bot_builder = bot_builder
@@ -33,16 +40,16 @@ class BotClient:
     state = RemoteState(self._client)
     self._bot = self._bot_builder(game)
     while True:
-      print('client a')
+      dbg_print('client a')
       action = self._bot.step(state)
-      print('client b')
+      dbg_print('client b')
       new_state = state.step(action)
-      print('client c')
+      dbg_print('client c')
       if 'GAME_OVER' in new_state:
-        print('client game over')
+        dbg_print('client game over')
         state = RemoteState(self._client)
       if 'EXIT' in new_state:
-        print('client exit received')
+        dbg_print('client exit received')
         break
 
   def disconnect(self):
@@ -112,7 +119,7 @@ class RemoteState:
     return self._get_state()['returns']
 
   def step(self, action: int):
-    print('client step')
+    dbg_print('client step')
     # note: 'step' isn't part of an OpenSpiel state, but we need a way of
     # indicating to the server that this is a 'real' action, not part of a
     # simulation.
@@ -126,7 +133,7 @@ class RemoteState:
     return self._state
 
   def apply_action(self, action: int):
-    print('client action')
+    dbg_print('client action')
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
     # which is what is currently used to serialise messages.
     self._state = self._client.send({

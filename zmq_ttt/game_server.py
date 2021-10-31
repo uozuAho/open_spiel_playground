@@ -10,10 +10,18 @@ from open_spiel.python.bots import uniform_random
 from networking import DictServer
 
 
+DEBUG=False
+
+
 def main():
   server = TicTacToeServer("ipc:///tmp/ttt")
   server.serve_one_game()
   # server.measure_games_per_second()
+
+
+def dbg_print(message):
+  if DEBUG:
+    print(message)
 
 
 class TicTacToeServer:
@@ -54,7 +62,7 @@ class TicTacToeServer:
     self.play_one_game(local_bot, exit=True)
 
   def play_one_game(self, local_player, exit=True):
-    print('qwer')
+    dbg_print('qwer')
     self._state = self._game.new_initial_state()
 
     remote_player = self  # this is confusing...
@@ -62,25 +70,25 @@ class TicTacToeServer:
     remote_is_waiting = False
 
     while not self._state.is_terminal():
-      print('s')
+      dbg_print('s')
       current_player_idx = self._state.current_player()
       current_player = players[current_player_idx]
       if current_player is remote_player:
-        print('remote turn')
+        dbg_print('remote turn')
         if remote_is_waiting:
-          print('send state')
+          dbg_print('send state')
           self._server.send(self._state_as_dict(self._state))
           remote_is_waiting = False
         action = self.serve_until_step_requested(self._state)
         remote_is_waiting = True
       else:
-        print('server turn')
+        dbg_print('server turn')
         action = current_player.step(self._state)
       self._state.apply_action(action)
 
     if remote_is_waiting:
       if exit:
-        print('server send exit')
+        dbg_print('server send exit')
         self._server.send({'EXIT': True})
       else:
         self._server.send({'GAME_OVER': True})

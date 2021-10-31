@@ -12,16 +12,17 @@ What I want
 - server plays as much of game as possible, until next blocking wait for client
   request
 
+# quick start
+```sh
 # run tests
-```sh
 python tests.py
-```
+# run performance comparison of local/remote games
+python performance_comparison.py
 
-# try it out
-```sh
+# run server & client:
 # in one terminal:
 python game_server.py
-# in another
+# in another:
 python bot_client.py
 ```
 
@@ -35,11 +36,9 @@ Not great!
 
 # todo
 - cleanup, tests, 'harden'
-  - make sure random bot still works
   - handle bots in either order?
+- perf test: dummy local dict client/server
 - try random & mcts vs pandemic game
-- better demo/comparison of local vs remote performance
-- try inproc transport: where is the performance loss?
 - ideas to improve performance
   - more efficient (de)serialiser?
 - server should have no references to openSpiel

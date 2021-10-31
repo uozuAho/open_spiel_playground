@@ -35,6 +35,9 @@ class TicTacToeServer:
     self.play_one_game(local_bot)
     print('done')
     print(self._state)
+    self.close()
+
+  def close(self):
     # hack: give some time for the client to close. otherwise tests hang
     time.sleep(0.1)
     self._server.close()
@@ -60,6 +63,7 @@ class TicTacToeServer:
         num_games = 0
         last = datetime.now()
     self.play_one_game(local_bot, exit=True)
+    self.close()
 
   def play_one_game(self, local_player, exit=True):
     dbg_print('qwer')

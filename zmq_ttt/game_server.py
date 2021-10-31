@@ -10,11 +10,9 @@ from networking import DictServer
 
 
 def main():
-  # serve_one_game()
-  # measure_games_per_second()
   server = TicTacToeServer("ipc:///tmp/ttt")
-  # server.serve_one_game()
-  server.measure_games_per_second()
+  server.serve_one_game()
+  # server.measure_games_per_second()
 
 
 class TicTacToeServer:
@@ -25,7 +23,6 @@ class TicTacToeServer:
   def serve_one_game(self):
     local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
     self.play_one_game(local_bot)
-    self.wait_for_disconnect()
     print('done')
     print(self._state)
 
@@ -48,6 +45,7 @@ class TicTacToeServer:
         last = datetime.now()
 
   def play_one_game(self, local_player):
+    print('qwer')
     self._state = self._game.new_initial_state()
 
     remote_player = self  # this is confusing...
@@ -55,27 +53,28 @@ class TicTacToeServer:
     remote_is_waiting = False
 
     while not self._state.is_terminal():
+      print('s')
       current_player_idx = self._state.current_player()
       current_player = players[current_player_idx]
       if current_player is remote_player:
+        print('remote turn')
         if remote_is_waiting:
           self._server.send(self._state_as_dict(self._state))
           remote_is_waiting = False
         action = self.serve_until_step_requested(self._state)
         remote_is_waiting = True
       else:
+        print('server turn')
         action = current_player.step(self._state)
       self._state.apply_action(action)
 
+    print('asdf')
     if remote_is_waiting:
-      self._server.send({})
+      print('asdf2')
+      self._server.send({'EXIT': True})
+      print('asdf3')
 
     return self._state
-
-  def wait_for_disconnect(self):
-    self._server.recv()
-    self._server.send({'EXIT': True})
-    self._server.close()
 
   def serve_until_step_requested(self, state):
     action_done = False

@@ -11,14 +11,14 @@ from networking import DictClient
 def main():
   client = DictClient("ipc:///tmp/ttt")
   game = RemoteGame(client)
-  # random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  # bot = BotClient(random_bot)
-  mcts_bot = mcts.MCTSBot(
-      game,
-      uct_c=math.sqrt(2),
-      max_simulations=4,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = BotClient(mcts_bot)
+  random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  bot = BotClient(random_bot)
+  # mcts_bot = mcts.MCTSBot(
+  #     game,
+  #     uct_c=math.sqrt(2),
+  #     max_simulations=4,
+  #     evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
+  # bot = BotClient(mcts_bot)
   try:
     bot.connect("ipc:///tmp/ttt")
     bot.run()
@@ -36,8 +36,12 @@ class BotClient:
   def run(self):
     state = RemoteState(self._client)
     while True:
+      print('client a')
       action = self._bot.step(state)
-      state.step(action)
+      print('client b')
+      new_state = state.step(action)
+      if 'EXIT' in new_state:
+        break
 
   def disconnect(self):
     self._client.close()
@@ -106,6 +110,7 @@ class RemoteState:
     return self._get_state()['returns']
 
   def step(self, action: int):
+    print('client step')
     # note: 'step' isn't part of an OpenSpiel state, but we need a way of
     # indicating to the server that this is a 'real' action, not part of a
     # simulation.
@@ -116,7 +121,10 @@ class RemoteState:
       'action': int(action),
       'state_str': self._state['state_str']})
 
+    return self._state
+
   def apply_action(self, action: int):
+    print('client action')
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
     # which is what is currently used to serialise messages.
     self._state = self._client.send({

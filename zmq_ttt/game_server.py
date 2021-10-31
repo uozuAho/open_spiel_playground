@@ -17,10 +17,11 @@ def main():
 
 class TicTacToeServer:
   def __init__(self, url):
-    self._server = DictServer(url)
-    self._game = pyspiel.load_game("tic_tac_toe")
+    self._url = url
 
   def serve_one_game(self):
+    self._server = DictServer(self._url)
+    self._game = pyspiel.load_game("tic_tac_toe")
     local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
     self.play_one_game(local_bot)
     print('done')

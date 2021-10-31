@@ -14,14 +14,14 @@ class RemoteTicTacToeTests(absltest.TestCase):
     server_process.start()
 
     random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-    bot = BotClient(random_bot)
-    bot.connect("ipc:///tmp/ttt")
+    bot = BotClient(random_bot, "ipc:///tmp/ttt")
 
     client_process = Process(target=bot.run)
     client_process.start()
 
     client_process.join()
     server_process.join()
+    # if we get here without hanging, success!
 
 
 if __name__ == "__main__":

@@ -9,10 +9,10 @@ from networking import DictClient
 
 
 def main():
-  client = DictClient("ipc:///tmp/ttt")
-  game = RemoteGame(client)
   random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot = BotClient(random_bot)
+  bot = BotClient(random_bot, "ipc:///tmp/ttt")
+  # client = DictClient("ipc:///tmp/ttt")
+  # game = RemoteGame(client)
   # mcts_bot = mcts.MCTSBot(
   #     game,
   #     uct_c=math.sqrt(2),
@@ -20,20 +20,18 @@ def main():
   #     evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
   # bot = BotClient(mcts_bot)
   try:
-    bot.connect("ipc:///tmp/ttt")
     bot.run()
   finally:
     bot.disconnect()
 
 
 class BotClient:
-  def __init__(self, bot):
+  def __init__(self, bot, url):
     self._bot = bot
-
-  def connect(self, url):
-    self._client = DictClient(url)
+    self._url = url
 
   def run(self):
+    self._client = DictClient(self._url)
     state = RemoteState(self._client)
     while True:
       print('client a')

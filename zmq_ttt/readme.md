@@ -5,34 +5,33 @@ feasible.
 
 General idea:
 
-  ┌────────────┐    ┌───────────────────┐                ┌────────────────────┐
-  │  OpenSpiel │    │                   │  get state     │                    │
-  │            │    │ NetworkBot        ├───────────────►│ Remote Game Server │
+  ┌────────────┐    ┌───────────────────┐ get game info  ┌────────────────────┐
+  │  OpenSpiel │    │                   ├───────────────▲│                    │
+  │            │    │ NetworkBot        │▼───────────────┤ Remote Game Server │
   │            │    │                   │                │                    │
-  │     bot  ──┼────┼───► wrapped bot   │◄───────────────┤                    │
-  │            │    │                   │  state (JSON)  │                    │
+  │     bot  ──┼────┼───► wrapped bot   │                │                    │
+  │            │    │                   │                │                    │
+  │            │    │                   │   get state    │                    │
+  │            │    │                   ├───────────────▲│                    │
+  │            │    │                   │▼───────────────┤                    │
   │            │    │                   │                │                    │
   │            │    │                   │                │                    │
   │            │    │                   │                │                    │
   │            │    │                   │  apply action  │                    │
-  │            │    │                   │  to state      │                    │
-  │            │    │                   ├───────────────►│                    │
-  │            │    │                   │                │                    │
-  │            │    │                   │◄───────────────┤                    │
-  │            │    │                   │  resultant     │                    │
-  │            │    │                   │  state         │                    │
-  │            │    │                   │                │                    │
+  │            │    │                   │    to state    │                    │
+  │            │    │                   ├───────────────▲│                    │
+  │            │    │                   │▼───────────────┤                    │
+  │            │    │                   │   resultant    │                    │
+  │            │    │                   │     state      │                    │
   │            │    │                   │                │                    │
   │            │    │                   │                │                    │
-  │            │    │                   │  step          │                    │
-  │            │    │                   ├───────────────►│                    │
-  │            │    │                   │                │                    │
-  │            │    │                   │◄───────────────┤                    │
+  │            │    │                   │      step      │                    │
+  │            │    │                   ├───────────────▲│                    │
+  │            │    │                   │▼───────────────┤                    │
   │            │    │                   │  updated game  │                    │
-  └────────────┘    └───────────────────┘  state         └────────────────────┘
+  └────────────┘    └───────────────────┘     state      └────────────────────┘
 
-
-Remote game server can be implemented in any language, and run locally or
+The remote game server can be implemented in any language, and run locally or
 remotely. Games are played sychronously in a request-response format. The server
 initialises the game and waits for a network bot to start making requests.
 
@@ -56,9 +55,10 @@ python bot_client.py
 - using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
-- perf test: dummy local dict client/server
 - cleanup, tests, 'harden'
+  - rename network bot
   - handle bots in either order?
+  - handle two remote bots?
 - try random & mcts vs pandemic game
 - ideas to improve performance
   - more efficient (de)serialiser?

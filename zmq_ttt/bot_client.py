@@ -9,14 +9,13 @@ from networking import DictClient
 
 
 def main():
-  # random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-  # bot = BotClient(random_bot_builder, "ipc:///tmp/ttt")
-  mcts_bot_builder = lambda game : mcts.MCTSBot(
+  # bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
+  bot_builder = lambda game : mcts.MCTSBot(
       game,
       uct_c=math.sqrt(2),
       max_simulations=4,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = BotClient(mcts_bot_builder, "ipc:///tmp/ttt")
+  bot = BotClient(bot_builder, "ipc:///tmp/ttt")
   try:
     bot.run()
   finally:
@@ -38,7 +37,9 @@ class BotClient:
       action = self._bot.step(state)
       print('client b')
       new_state = state.step(action)
+      print('client c')
       if 'EXIT' in new_state:
+        print('client exit received')
         break
 
   def disconnect(self):

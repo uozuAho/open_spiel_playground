@@ -1,5 +1,6 @@
 import base64
 from datetime import datetime
+import time
 import pickle
 from typing import Dict, List
 
@@ -26,6 +27,9 @@ class TicTacToeServer:
     self.play_one_game(local_bot)
     print('done')
     print(self._state)
+    # hack: give some time for the client to close. otherwise tests hang
+    time.sleep(0.1)
+    self._server.close()
 
   def measure_games_per_second(self):
     local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
@@ -69,11 +73,9 @@ class TicTacToeServer:
         action = current_player.step(self._state)
       self._state.apply_action(action)
 
-    print('asdf')
     if remote_is_waiting:
-      print('asdf2')
+      print('server send exit')
       self._server.send({'EXIT': True})
-      print('asdf3')
 
     return self._state
 

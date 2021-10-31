@@ -104,7 +104,9 @@ class TicTacToeServer:
     raise RuntimeError(f'unknown request: {request["type"]}')
 
   def _handle_apply_action(self, request: Dict):
-    pass
+    state = pickle.loads(base64.b64decode(request['state_str']))
+    state.apply_action(request['action'])
+    return self._state_as_dict(state)
 
   def _handle_step(self, request: Dict):
     action = int(request['action'])
@@ -117,11 +119,12 @@ class TicTacToeServer:
     return {
       # state_str: A string that the server can use to rebuild the state.
       #            Not used by clients.
-      'state_str': str(base64.b64encode(pickle.dumps(state))),
+      'state_str': base64.b64encode(pickle.dumps(state)).decode('UTF-8'),
       'current_player': state.current_player(),
       'legal_actions': state.legal_actions(),
       'is_terminal': state.is_terminal(),
-      'is_chance_node': state.is_chance_node()
+      'is_chance_node': state.is_chance_node(),
+      'returns': state.returns()
     }
 
   def _handle_game_type(self):

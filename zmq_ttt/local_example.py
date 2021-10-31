@@ -34,8 +34,8 @@ def print_games_per_second():
       game,
       uct_c=math.sqrt(2),
       # starts beating random bot at ~ 3 sims, 1 rollout
-      max_simulations=10,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=5))
+      max_simulations=4,
+      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
 
   last = datetime.now()
   num_games = 0

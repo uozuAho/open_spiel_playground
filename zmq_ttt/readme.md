@@ -24,12 +24,15 @@ python bot_client.py
 Not great!
 - local (in same process) random vs random bots gets ~10k games/sec
 - over ZMQ, random vs random bots gets ~200 games/sec
+- with a more 'chatty' algorithm like MCTS, performance is on the order of 10
+  games/sec (note that local MCTS is ~700 games/sec, depending on parameters)
 - using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
-- impl remote 'apply action'
-- does remote mcts now win?
-- make sure random bot still works
+- cleanup, tests, 'harden'
+  - make sure random bot still works
+  - handle bots in either order?
+- better demo/comparison of local vs remote performance
 - try inproc transport: where is the performance loss?
 - ideas to improve performance
   - more efficient (de)serialiser?

@@ -1,16 +1,40 @@
-# remote tic tac toe using ZMQ
+# Demo: OpenSpiel agents play remote tic tac toe game, using ZMQ
 
 Work in progress. Code is very messy, just trying to prove that this is
 feasible.
 
-What I want
-- game server implemented in remote env.
-- use openspiel bots to play remote game
+General idea:
 
-# how it works
-- bot client -> game server
-- server plays as much of game as possible, until next blocking wait for client
-  request
+  ┌────────────┐    ┌───────────────────┐                ┌────────────────────┐
+  │  OpenSpiel │    │                   │  get state     │                    │
+  │            │    │ NetworkBot        ├───────────────►│ Remote Game Server │
+  │            │    │                   │                │                    │
+  │     bot  ──┼────┼───► wrapped bot   │◄───────────────┤                    │
+  │            │    │                   │  state (JSON)  │                    │
+  │            │    │                   │                │                    │
+  │            │    │                   │                │                    │
+  │            │    │                   │                │                    │
+  │            │    │                   │  apply action  │                    │
+  │            │    │                   │  to state      │                    │
+  │            │    │                   ├───────────────►│                    │
+  │            │    │                   │                │                    │
+  │            │    │                   │◄───────────────┤                    │
+  │            │    │                   │  resultant     │                    │
+  │            │    │                   │  state         │                    │
+  │            │    │                   │                │                    │
+  │            │    │                   │                │                    │
+  │            │    │                   │                │                    │
+  │            │    │                   │  step          │                    │
+  │            │    │                   ├───────────────►│                    │
+  │            │    │                   │                │                    │
+  │            │    │                   │◄───────────────┤                    │
+  │            │    │                   │  updated game  │                    │
+  └────────────┘    └───────────────────┘  state         └────────────────────┘
+
+
+Remote game server can be implemented in any language, and run locally or
+remotely. Games are played sychronously in a request-response format. The server
+initialises the game and waits for a network bot to start making requests.
 
 # quick start
 ```sh
@@ -27,17 +51,15 @@ python bot_client.py
 ```
 
 # performance
-Not great!
-- local (in same process) random vs random bots gets ~10k games/sec
-- over ZMQ, random vs random bots gets ~200 games/sec
-- with a more 'chatty' algorithm like MCTS, performance is on the order of 10
-  games/sec (note that local MCTS is ~700 games/sec, depending on parameters)
+- as you'd expect, this is _slow_. Playing a local agent against a remote
+  agent runs about 50-100 slower than two local agents.
 - using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
+- change back to tcp
+- perf test: dummy local dict client/server
 - cleanup, tests, 'harden'
   - handle bots in either order?
-- perf test: dummy local dict client/server
 - try random & mcts vs pandemic game
 - ideas to improve performance
   - more efficient (de)serialiser?

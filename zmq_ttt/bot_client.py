@@ -9,8 +9,8 @@ from networking import DictClient
 
 
 def main():
-  random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot = BotClient(random_bot, "ipc:///tmp/ttt")
+  random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
+  bot = BotClient(random_bot_builder, "ipc:///tmp/ttt")
   # client = DictClient("ipc:///tmp/ttt")
   # game = RemoteGame(client)
   # mcts_bot = mcts.MCTSBot(
@@ -26,13 +26,15 @@ def main():
 
 
 class BotClient:
-  def __init__(self, bot, url):
-    self._bot = bot
+  def __init__(self, bot_builder, url):
+    self._bot_builder = bot_builder
     self._url = url
 
   def run(self):
     self._client = DictClient(self._url)
+    game = RemoteGame(self._client)
     state = RemoteState(self._client)
+    self._bot = self._bot_builder(game)
     while True:
       print('client a')
       action = self._bot.step(state)

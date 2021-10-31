@@ -12,6 +12,11 @@ What I want
 - server plays as much of game as possible, until next blocking wait for client
   request
 
+# run tests
+```sh
+python tests.py
+```
+
 # try it out
 ```sh
 # in one terminal:

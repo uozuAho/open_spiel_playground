@@ -9,16 +9,14 @@ from networking import DictClient
 
 
 def main():
-  random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot = BotClient(random_bot_builder, "ipc:///tmp/ttt")
-  # client = DictClient("ipc:///tmp/ttt")
-  # game = RemoteGame(client)
-  # mcts_bot = mcts.MCTSBot(
-  #     game,
-  #     uct_c=math.sqrt(2),
-  #     max_simulations=4,
-  #     evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  # bot = BotClient(mcts_bot)
+  # random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
+  # bot = BotClient(random_bot_builder, "ipc:///tmp/ttt")
+  mcts_bot_builder = lambda game : mcts.MCTSBot(
+      game,
+      uct_c=math.sqrt(2),
+      max_simulations=4,
+      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
+  bot = BotClient(mcts_bot_builder, "ipc:///tmp/ttt")
   try:
     bot.run()
   finally:

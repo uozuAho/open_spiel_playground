@@ -61,7 +61,7 @@ class TicTacToeServer:
         if remote_is_waiting:
           self._server.send(self._state_as_dict(self._state))
           remote_is_waiting = False
-        action = self.serve_until_action_requested(self._state)
+        action = self.serve_until_step_requested(self._state)
         remote_is_waiting = True
       else:
         action = current_player.step(self._state)
@@ -77,13 +77,13 @@ class TicTacToeServer:
     self._server.send({'EXIT': True})
     self._server.close()
 
-  def serve_until_action_requested(self, state):
+  def serve_until_step_requested(self, state):
     action_done = False
     action = None
     while not action_done:
       request = self._server.recv()
       response = self._handle_request(state, request)
-      if request['type'] == 'do_action':
+      if request['type'] == 'step':
         action_done = True
         action = response
       else:
@@ -91,12 +91,10 @@ class TicTacToeServer:
     return action
 
   def _handle_request(self, state, request: Dict):
-    if request['type'] == 'legal_actions':
-      return self._handle_legal_actions(state)
-    if request['type'] == 'do_action':
-      return self._handle_do_action(request)
-    if request['type'] == 'current_player':
-      return self._handle_current_player(state)
+    if request['type'] == 'apply_action':
+      return self._handle_apply_action(request)
+    if request['type'] == 'step':
+      return self._handle_step(request)
     if request['type'] == 'get_state':
       return self._handle_get_state(state)
     if request['type'] == 'game_type':
@@ -105,15 +103,14 @@ class TicTacToeServer:
       return self._handle_game_info()
     raise RuntimeError(f'unknown request: {request["type"]}')
 
-  def _handle_legal_actions(self, state) -> List:
-    return state.legal_actions()
+  def _handle_apply_action(self, request: Dict):
+    state = pickle.loads(base64.b64decode(request['state_str']))
+    state.apply_action(request['action'])
+    return self._state_as_dict(state)
 
-  def _handle_do_action(self, request: Dict):
+  def _handle_step(self, request: Dict):
     action = int(request['action'])
     return action
-
-  def _handle_current_player(self, state):
-    return state.current_player()
 
   def _handle_get_state(self, state):
     return self._state_as_dict(state)
@@ -122,11 +119,12 @@ class TicTacToeServer:
     return {
       # state_str: A string that the server can use to rebuild the state.
       #            Not used by clients.
-      'state_str': str(base64.b64encode(pickle.dumps(state))),
+      'state_str': base64.b64encode(pickle.dumps(state)).decode('UTF-8'),
       'current_player': state.current_player(),
       'legal_actions': state.legal_actions(),
       'is_terminal': state.is_terminal(),
-      'is_chance_node': state.is_chance_node()
+      'is_chance_node': state.is_chance_node(),
+      'returns': state.returns()
     }
 
   def _handle_game_type(self):

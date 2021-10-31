@@ -16,8 +16,8 @@ def main():
   mcts_bot = mcts.MCTSBot(
       game,
       uct_c=math.sqrt(2),
-      max_simulations=5,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=5))
+      max_simulations=4,
+      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
   bot = BotClient(mcts_bot)
   try:
     bot.connect("ipc:///tmp/ttt")
@@ -37,7 +37,7 @@ class BotClient:
     state = RemoteState(self._client)
     while True:
       action = self._bot.step(state)
-      state.apply_action(action)
+      state.step(action)
 
   def disconnect(self):
     self._client.close()
@@ -102,10 +102,27 @@ class RemoteState:
   def is_chance_node(self):
     return self._get_state()['is_chance_node']
 
+  def returns(self):
+    return self._get_state()['returns']
+
+  def step(self, action: int):
+    # note: 'step' isn't part of an OpenSpiel state, but we need a way of
+    # indicating to the server that this is a 'real' action, not part of a
+    # simulation.
+    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
+    # which is what is currently used to serialise messages.
+    self._state = self._client.send({
+      'type': 'step',
+      'action': int(action),
+      'state_str': self._state['state_str']})
+
   def apply_action(self, action: int):
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
     # which is what is currently used to serialise messages.
-    self._state = self._client.send({'type': 'do_action', 'action': int(action)})
+    self._state = self._client.send({
+      'type': 'apply_action',
+      'action': int(action),
+      'state_str': self._state['state_str']})
 
   def _get_state(self):
     if not self._state:

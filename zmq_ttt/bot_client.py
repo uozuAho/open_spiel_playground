@@ -7,37 +7,50 @@ from open_spiel.python.algorithms import mcts
 
 from networking import DictClient
 
+DEBUG=False
+
 
 def main():
-  client = DictClient("ipc:///tmp/ttt")
-  game = RemoteGame(client)
-  # random_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  # bot = BotClient(random_bot)
-  mcts_bot = mcts.MCTSBot(
+  # bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
+  bot_builder = lambda game : mcts.MCTSBot(
       game,
       uct_c=math.sqrt(2),
       max_simulations=4,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = BotClient(mcts_bot)
+  bot = BotClient(bot_builder, "ipc:///tmp/ttt")
   try:
-    bot.connect("ipc:///tmp/ttt")
     bot.run()
   finally:
     bot.disconnect()
 
 
-class BotClient:
-  def __init__(self, bot):
-    self._bot = bot
+def dbg_print(message):
+  if DEBUG:
+    print(message)
 
-  def connect(self, url):
-    self._client = DictClient(url)
+
+class BotClient:
+  def __init__(self, bot_builder, url):
+    self._bot_builder = bot_builder
+    self._url = url
 
   def run(self):
+    self._client = DictClient(self._url)
+    game = RemoteGame(self._client)
     state = RemoteState(self._client)
+    self._bot = self._bot_builder(game)
     while True:
+      dbg_print('client a')
       action = self._bot.step(state)
-      state.step(action)
+      dbg_print('client b')
+      new_state = state.step(action)
+      dbg_print('client c')
+      if 'GAME_OVER' in new_state:
+        dbg_print('client game over')
+        state = RemoteState(self._client)
+      if 'EXIT' in new_state:
+        dbg_print('client exit received')
+        break
 
   def disconnect(self):
     self._client.close()
@@ -86,7 +99,6 @@ class RemoteState:
       self._state = state
 
   def clone(self):
-    # todo: is this enough, or should I copy _state?
     return RemoteState(self._client, self._state)
 
   def current_player(self):
@@ -106,19 +118,21 @@ class RemoteState:
     return self._get_state()['returns']
 
   def step(self, action: int):
+    dbg_print('client step')
     # note: 'step' isn't part of an OpenSpiel state, but we need a way of
     # indicating to the server that this is a 'real' action, not part of a
     # simulation.
-    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
-    # which is what is currently used to serialise messages.
+    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints.
     self._state = self._client.send({
       'type': 'step',
-      'action': int(action),
-      'state_str': self._state['state_str']})
+      'action': int(action)})
+
+    return self._state
 
   def apply_action(self, action: int):
-    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints,
-    # which is what is currently used to serialise messages.
+    """ Ask the server to apply the given action to the given state """
+    dbg_print(f'client apply action {action}')
+    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints.
     self._state = self._client.send({
       'type': 'apply_action',
       'action': int(action),

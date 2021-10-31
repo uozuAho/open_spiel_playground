@@ -1,7 +1,8 @@
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
 import pickle
-from typing import Dict, List
+from typing import Dict
 
 import pyspiel
 import numpy as np
@@ -9,34 +10,49 @@ from open_spiel.python.bots import uniform_random
 from networking import DictServer
 
 
+DEBUG=False
+
+
 def main():
-  # serve_one_game()
-  # measure_games_per_second()
   server = TicTacToeServer("ipc:///tmp/ttt")
-  # server.serve_one_game()
-  server.measure_games_per_second()
+  server.serve_one_game()
+  # server.measure_games_per_second()
+
+
+def dbg_print(message):
+  if DEBUG:
+    print(message)
 
 
 class TicTacToeServer:
   def __init__(self, url):
-    self._server = DictServer(url)
-    self._game = pyspiel.load_game("tic_tac_toe")
+    self._url = url
 
   def serve_one_game(self):
+    self._server = DictServer(self._url)
+    self._game = pyspiel.load_game("tic_tac_toe")
     local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
     self.play_one_game(local_bot)
-    self.wait_for_disconnect()
     print('done')
     print(self._state)
+    self.close()
 
-  def measure_games_per_second(self):
+  def close(self):
+    # hack: give some time for the client to close. otherwise tests hang
+    time.sleep(0.1)
+    self._server.close()
+
+  def measure_games_per_second(self, time_limit_s):
+    self._server = DictServer(self._url)
+    self._game = pyspiel.load_game("tic_tac_toe")
     local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+    end = datetime.now() + timedelta(seconds=time_limit_s)
     last = datetime.now()
     num_games = 0
     local_wins = 0
     remote_wins = 0
-    while True:
-      state = self.play_one_game(local_bot)
+    while datetime.now() < end:
+      state = self.play_one_game(local_bot, exit=False)
       if state.returns()[0] > 0:
         remote_wins += 1
       else:
@@ -46,8 +62,11 @@ class TicTacToeServer:
         print(f'{num_games} games/sec. wins: remote: {remote_wins}, local: {local_wins}')
         num_games = 0
         last = datetime.now()
+    self.play_one_game(local_bot, exit=True)
+    self.close()
 
-  def play_one_game(self, local_player):
+  def play_one_game(self, local_player, exit=True):
+    dbg_print('qwer')
     self._state = self._game.new_initial_state()
 
     remote_player = self  # this is confusing...
@@ -55,27 +74,30 @@ class TicTacToeServer:
     remote_is_waiting = False
 
     while not self._state.is_terminal():
+      dbg_print('s')
       current_player_idx = self._state.current_player()
       current_player = players[current_player_idx]
       if current_player is remote_player:
+        dbg_print('remote turn')
         if remote_is_waiting:
+          dbg_print('send state')
           self._server.send(self._state_as_dict(self._state))
           remote_is_waiting = False
         action = self.serve_until_step_requested(self._state)
         remote_is_waiting = True
       else:
+        dbg_print('server turn')
         action = current_player.step(self._state)
       self._state.apply_action(action)
 
     if remote_is_waiting:
-      self._server.send({})
+      if exit:
+        dbg_print('server send exit')
+        self._server.send({'EXIT': True})
+      else:
+        self._server.send({'GAME_OVER': True})
 
     return self._state
-
-  def wait_for_disconnect(self):
-    self._server.recv()
-    self._server.send({'EXIT': True})
-    self._server.close()
 
   def serve_until_step_requested(self, state):
     action_done = False

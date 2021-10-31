@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import math
 import numpy as np
 
@@ -8,40 +8,33 @@ from open_spiel.python.algorithms import mcts
 
 
 def main():
-  play_one_demo_game()
-  print_games_per_second()
+  random_vs_random()
 
 
-def play_one_demo_game():
+def random_vs_random():
+  b1 = lambda game : uniform_random.UniformRandomBot(0, np.random.RandomState())
+  b2 = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
+  print_games_per_second(b1, b2, time_limit_s=3)
+
+def print_games_per_second(builder1, builder2, time_limit_s):
   game = pyspiel.load_game("tic_tac_toe")
-  bot_1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
-  bot_2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
-
-  state = play_one_game(game, bot_1, bot_2)
-
-  player_labels = ['bot_1', 'bot_2']
-  winner = player_labels[0] if state.returns()[0] > 0 else player_labels[1]
-  print('final state:')
-  print(state)
-  print(f'winner: {winner}')
-
-
-def print_games_per_second():
-  game = pyspiel.load_game("tic_tac_toe")
-  bot_1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
+  bot_1 = builder1(game)
+  bot_2 = builder2(game)
+  # bot_1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
   # bot_2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot_2 = mcts.MCTSBot(
-      game,
-      uct_c=math.sqrt(2),
-      # starts beating random bot at ~ 3 sims, 1 rollout
-      max_simulations=4,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
+  # bot_2 = mcts.MCTSBot(
+  #     game,
+  #     uct_c=math.sqrt(2),
+  #     # starts beating random bot at ~ 3 sims, 1 rollout
+  #     max_simulations=4,
+  #     evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
 
+  end = datetime.now() + timedelta(seconds=time_limit_s)
   last = datetime.now()
   num_games = 0
   bot_1_wins = 0
   bot_2_wins = 0
-  while True:
+  while datetime.now() < end:
     state = play_one_game(game, bot_1, bot_2)
     if state.returns()[0] > 0:
       bot_1_wins += 1

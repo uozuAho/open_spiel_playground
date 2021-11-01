@@ -54,28 +54,19 @@ class TicTacToeServer:
   def play_one_game(self, local_player, exit=True):
     self._state = self._game.new_initial_state()
 
-    remote_player = self  # this is confusing...
+    remote_player = RemotePlayer(self)
     players = [remote_player, local_player]
-    remote_is_waiting = False
 
     while not self._state.is_terminal():
       current_player_idx = self._state.current_player()
       current_player = players[current_player_idx]
-      if current_player is remote_player:
-        if remote_is_waiting:
-          self._server.send(self._state_as_dict(self._state))
-          remote_is_waiting = False
-        action = self.serve_until_step_requested(self._state)
-        remote_is_waiting = True
-      else:
-        action = current_player.step(self._state)
+      action = current_player.step(self._state)
       self._state.apply_action(action)
 
-    if remote_is_waiting:
-      if exit:
-        self._server.send({'EXIT': True})
-      else:
-        self._server.send({'GAME_OVER': True})
+    if exit:
+      self._server.send({'EXIT': True})
+    else:
+      self._server.send({'GAME_OVER': True})
 
     return self._state
 
@@ -134,3 +125,17 @@ class TicTacToeServer:
 
   def _handle_game_info(self):
     return {'max_utility': 1, 'min_utility': -1}
+
+
+class RemotePlayer:
+  def __init__(self, server):
+    self._server = server
+    self._is_waiting_for_response = False
+
+  def step(self, state) -> int:
+    if self._is_waiting_for_response:
+      self._server._server.send(self._server._state_as_dict(state))
+      self._is_waiting_for_response = False
+    action = self._server.serve_until_step_requested(state)
+    self._is_waiting_for_response = True
+    return action

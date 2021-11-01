@@ -57,6 +57,9 @@ python bot_client.py
 - using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
+- network bot change: state = networkGame.newState
+  - does networkGame even need a current state?
+  - client should measure games/sec
 - cleanup, tests, 'harden'
   - handle bots in either order?
 - try random & mcts vs pandemic game

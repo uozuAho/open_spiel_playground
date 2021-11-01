@@ -17,7 +17,7 @@ def main():
       uct_c=math.sqrt(2),
       max_simulations=4,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = BotClient(bot_builder, "tcp://localhost:5555")
+  bot = NetworkBot(bot_builder, "tcp://localhost:5555")
   try:
     bot.run()
   finally:
@@ -29,15 +29,15 @@ def dbg_print(message):
     print(message)
 
 
-class BotClient:
+class NetworkBot:
   def __init__(self, bot_builder, url):
     self._bot_builder = bot_builder
     self._url = url
 
   def run(self):
     self._client = DictClient(self._url)
-    game = RemoteGame(self._client)
-    state = RemoteState(self._client)
+    game = NetworkGame(self._client)
+    state = NetworkState(self._client)
     self._bot = self._bot_builder(game)
     while True:
       dbg_print('client a')
@@ -47,7 +47,7 @@ class BotClient:
       dbg_print('client c')
       if 'GAME_OVER' in new_state:
         dbg_print('client game over')
-        state = RemoteState(self._client)
+        state = NetworkState(self._client)
       if 'EXIT' in new_state:
         dbg_print('client exit received')
         break
@@ -56,7 +56,7 @@ class BotClient:
     self._client.close()
 
 
-class RemoteGame:
+class NetworkGame:
   """ Implements an OpenSpiel game, that is usable by existing OpenSpiel bots """
   def __init__(self, client: DictClient):
       self._client = client
@@ -92,14 +92,14 @@ class RemoteGame:
     return info['max_utility']
 
 
-class RemoteState:
+class NetworkState:
   """ Implements an OpenSpiel state, that is usable by existing OpenSpiel bots """
   def __init__(self, client: DictClient, state=None):
       self._client = client
       self._state = state
 
   def clone(self):
-    return RemoteState(self._client, self._state)
+    return NetworkState(self._client, self._state)
 
   def current_player(self):
     return self._get_state()['current_player']

@@ -6,7 +6,7 @@ from absl.testing import absltest
 from open_spiel.python.algorithms import mcts
 from open_spiel.python.bots import uniform_random
 
-from network_bot import BotClient
+from network_bot import NetworkBot
 from game_server import TicTacToeServer
 
 
@@ -17,7 +17,7 @@ class RemoteTicTacToeTests(absltest.TestCase):
     server_process.start()
 
     random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-    bot = BotClient(random_bot_builder, "tcp://localhost:5555")
+    bot = NetworkBot(random_bot_builder, "tcp://localhost:5555")
 
     client_process = Process(target=bot.run)
     client_process.start()
@@ -36,7 +36,7 @@ class RemoteTicTacToeTests(absltest.TestCase):
         uct_c=math.sqrt(2),
         max_simulations=2,
         evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1))
-    bot = BotClient(mcts_bot_builder, "tcp://localhost:5555")
+    bot = NetworkBot(mcts_bot_builder, "tcp://localhost:5555")
 
     client_process = Process(target=bot.run)
     client_process.start()
@@ -51,7 +51,7 @@ class RemoteTicTacToeTests(absltest.TestCase):
     server_process.start()
 
     random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-    bot = BotClient(random_bot_builder, "tcp://localhost:5555")
+    bot = NetworkBot(random_bot_builder, "tcp://localhost:5555")
 
     client_process = Process(target=bot.run)
     client_process.start()

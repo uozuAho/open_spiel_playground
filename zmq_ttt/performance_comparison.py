@@ -8,7 +8,7 @@ from open_spiel.python.bots import uniform_random
 from open_spiel.python.algorithms import mcts
 
 from game_server import TicTacToeServer
-from network_bot import BotClient
+from network_bot import NetworkBot
 
 
 def main():
@@ -32,7 +32,7 @@ def random_vs_remote_random():
   server_process.start()
 
   random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot = BotClient(random_bot_builder, "tcp://localhost:5555")
+  bot = NetworkBot(random_bot_builder, "tcp://localhost:5555")
 
   client_process = Process(target=bot.run)
   client_process.start()
@@ -65,7 +65,7 @@ def random_vs_remote_mcts():
       # starts beating random bot at ~ 3 sims, 1 rollout
       max_simulations=3,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = BotClient(mcts_bot_builder, "tcp://localhost:5555")
+  bot = NetworkBot(mcts_bot_builder, "tcp://localhost:5555")
 
   client_process = Process(target=bot.run)
   client_process.start()

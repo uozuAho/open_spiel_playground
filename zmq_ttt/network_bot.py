@@ -1,18 +1,6 @@
-import math
-
-import numpy as np
 import pyspiel
-from open_spiel.python.bots import uniform_random
-from open_spiel.python.algorithms import mcts
 
 from networking import DictClient
-
-DEBUG=False
-
-
-def dbg_print(message):
-  if DEBUG:
-    print(message)
 
 
 class NetworkBot:
@@ -26,16 +14,11 @@ class NetworkBot:
     state = NetworkState(self._client)
     self._bot = self._bot_builder(game)
     while True:
-      dbg_print('client a')
       action = self._bot.step(state)
-      dbg_print('client b')
       new_state = state.step(action)
-      dbg_print('client c')
       if 'GAME_OVER' in new_state:
-        dbg_print('client game over')
         state = NetworkState(self._client)
       if 'EXIT' in new_state:
-        dbg_print('client exit received')
         break
 
   def disconnect(self):
@@ -104,7 +87,6 @@ class NetworkState:
     return self._get_state()['returns']
 
   def step(self, action: int):
-    dbg_print('client step')
     # note: 'step' isn't part of an OpenSpiel state, but we need a way of
     # indicating to the server that this is a 'real' action, not part of a
     # simulation.
@@ -117,7 +99,6 @@ class NetworkState:
 
   def apply_action(self, action: int):
     """ Ask the server to apply the given action to the given state """
-    dbg_print(f'client apply action {action}')
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints.
     self._state = self._client.send({
       'type': 'apply_action',

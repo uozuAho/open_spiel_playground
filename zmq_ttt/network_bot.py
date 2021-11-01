@@ -10,20 +10,6 @@ from networking import DictClient
 DEBUG=False
 
 
-def main():
-  # bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot_builder = lambda game : mcts.MCTSBot(
-      game,
-      uct_c=math.sqrt(2),
-      max_simulations=4,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = NetworkBot(bot_builder, "tcp://localhost:5555")
-  try:
-    bot.run()
-  finally:
-    bot.disconnect()
-
-
 def dbg_print(message):
   if DEBUG:
     print(message)
@@ -142,7 +128,3 @@ class NetworkState:
     if not self._state:
       self._state = self._client.send({'type': 'get_state'})
     return self._state
-
-
-if __name__ == "__main__":
-  main()

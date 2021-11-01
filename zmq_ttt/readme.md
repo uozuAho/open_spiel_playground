@@ -58,7 +58,6 @@ python bot_client.py
 
 # todo
 - cleanup, tests, 'harden'
-  - rename network bot
   - handle bots in either order?
   - handle two remote bots?
 - try random & mcts vs pandemic game

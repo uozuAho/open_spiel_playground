@@ -13,12 +13,6 @@ from networking import DictServer
 DEBUG=False
 
 
-def main():
-  server = TicTacToeServer("tcp://*:5555")
-  server.serve_one_game()
-  # server.measure_games_per_second()
-
-
 def dbg_print(message):
   if DEBUG:
     print(message)
@@ -154,7 +148,3 @@ class TicTacToeServer:
 
   def _handle_game_info(self):
     return {'max_utility': 1, 'min_utility': -1}
-
-
-if __name__ == "__main__":
-  main()

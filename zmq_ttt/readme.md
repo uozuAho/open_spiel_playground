@@ -7,8 +7,8 @@ General idea:
 
 ```
   ┌────────────┐    ┌───────────────────┐ get game info  ┌────────────────────┐
-  │  OpenSpiel │    │                   ├───────────────▲│                    │
-  │            │    │ NetworkBot        │▼───────────────┤ Remote Game Server │
+  │            │    │                   ├───────────────▲│                    │
+  │ OpenSpiel  │    │ NetworkBot        │▼───────────────┤ Remote Game Server │
   │            │    │                   │                │                    │
   │     bot  ──┼────┼───► wrapped bot   │                │                    │
   │            │    │                   │                │                    │
@@ -52,14 +52,13 @@ python bot_client.py
 ```
 
 # performance
-- as you'd expect, this is _slow_. Playing a local agent against a remote
+- as you'd expect, this is slow. Playing a local agent against a remote
   agent runs about 50-100 slower than two local agents.
 - using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
 - cleanup, tests, 'harden'
   - handle bots in either order?
-  - handle two remote bots?
 - try random & mcts vs pandemic game
 - ideas to improve performance
   - more efficient (de)serialiser?

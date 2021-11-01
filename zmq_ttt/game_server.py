@@ -120,7 +120,7 @@ class TicTacToeServer:
   def _state_as_dict(self, state):
     return {
       # state_str: A string that the server can use to rebuild the state.
-      #            Not used by clients.
+      #            Clients need to store this for searching game graphs.
       'state_str': base64.b64encode(pickle.dumps(state)).decode('UTF-8'),
       'current_player': state.current_player(),
       'legal_actions': state.legal_actions(),

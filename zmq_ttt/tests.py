@@ -6,7 +6,7 @@ from absl.testing import absltest
 from open_spiel.python.algorithms import mcts
 from open_spiel.python.bots import uniform_random
 
-from bot_client import BotClient
+from network_bot import BotClient
 from game_server import TicTacToeServer
 
 

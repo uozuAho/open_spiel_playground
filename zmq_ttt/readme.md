@@ -5,6 +5,7 @@ feasible.
 
 General idea:
 
+```
   ┌────────────┐    ┌───────────────────┐ get game info  ┌────────────────────┐
   │  OpenSpiel │    │                   ├───────────────▲│                    │
   │            │    │ NetworkBot        │▼───────────────┤ Remote Game Server │
@@ -30,6 +31,7 @@ General idea:
   │            │    │                   │▼───────────────┤                    │
   │            │    │                   │  updated game  │                    │
   └────────────┘    └───────────────────┘     state      └────────────────────┘
+```
 
 The remote game server can be implemented in any language, and run locally or
 remotely. Games are played sychronously in a request-response format. The server

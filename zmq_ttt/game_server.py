@@ -19,6 +19,7 @@ class TicTacToeServer:
     self._game = pyspiel.load_game("tic_tac_toe")
     local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
     remote_player = RemotePlayer(self)
+    # something's wrong here, why aren't players used?
     players = [remote_player, local_bot]
     self.serve_until_exit_requested()
     print('closing server')

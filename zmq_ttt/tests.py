@@ -63,8 +63,6 @@ class RemoteTicTacToeTests(absltest.TestCase):
     # if we get here without hanging, success!
 
   def test_client_controls_game(self):
-    """ work in progress. rather than game server running games, let the client
-    do it"""
     server = TicTacToeServer("tcp://*:5555")
     server_process = Process(target=server.run)
     server_process.start()

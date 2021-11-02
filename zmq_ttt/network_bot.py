@@ -21,15 +21,6 @@ class NetworkBot:
       if 'EXIT' in new_state:
         break
 
-  def play_one_game(self):
-    self._client = DictClient(self._url)
-    game = NetworkGame(self._client)
-    state = game.new_initial_state()
-    self._bot = self._bot_builder(game)
-    while not state.is_terminal():
-      action = self._bot.step(state)
-      state.apply_action(action)
-
   def disconnect(self):
     self._client.close()
 

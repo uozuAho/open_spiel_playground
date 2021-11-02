@@ -6,18 +6,18 @@ from absl.testing import absltest
 from open_spiel.python.algorithms import mcts
 from open_spiel.python.bots import uniform_random
 
-from bot_client import BotClient
+from network_bot import NetworkBot
 from game_server import TicTacToeServer
 
 
 class RemoteTicTacToeTests(absltest.TestCase):
   def test_random_vs_random_game(self):
-    server = TicTacToeServer("ipc:///tmp/ttt")
+    server = TicTacToeServer("tcp://*:5555")
     server_process = Process(target=server.serve_one_game)
     server_process.start()
 
     random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-    bot = BotClient(random_bot_builder, "ipc:///tmp/ttt")
+    bot = NetworkBot(random_bot_builder, "tcp://localhost:5555")
 
     client_process = Process(target=bot.run)
     client_process.start()
@@ -27,7 +27,7 @@ class RemoteTicTacToeTests(absltest.TestCase):
     # if we get here without hanging, success!
 
   def test_mcts_vs_random_game(self):
-    server = TicTacToeServer("ipc:///tmp/ttt")
+    server = TicTacToeServer("tcp://*:5555")
     server_process = Process(target=server.serve_one_game)
     server_process.start()
 
@@ -36,7 +36,7 @@ class RemoteTicTacToeTests(absltest.TestCase):
         uct_c=math.sqrt(2),
         max_simulations=2,
         evaluator=mcts.RandomRolloutEvaluator(n_rollouts=1))
-    bot = BotClient(mcts_bot_builder, "ipc:///tmp/ttt")
+    bot = NetworkBot(mcts_bot_builder, "tcp://localhost:5555")
 
     client_process = Process(target=bot.run)
     client_process.start()
@@ -46,12 +46,12 @@ class RemoteTicTacToeTests(absltest.TestCase):
     # if we get here without hanging, success!
 
   def test_measure_performance(self):
-    server = TicTacToeServer("ipc:///tmp/ttt")
+    server = TicTacToeServer("tcp://*:5555")
     server_process = Process(target=server.measure_games_per_second, args=(0.5,))
     server_process.start()
 
     random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-    bot = BotClient(random_bot_builder, "ipc:///tmp/ttt")
+    bot = NetworkBot(random_bot_builder, "tcp://localhost:5555")
 
     client_process = Process(target=bot.run)
     client_process.start()

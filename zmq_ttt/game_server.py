@@ -10,20 +10,6 @@ from open_spiel.python.bots import uniform_random
 from networking import DictServer
 
 
-DEBUG=False
-
-
-def main():
-  server = TicTacToeServer("ipc:///tmp/ttt")
-  server.serve_one_game()
-  # server.measure_games_per_second()
-
-
-def dbg_print(message):
-  if DEBUG:
-    print(message)
-
-
 class TicTacToeServer:
   def __init__(self, url):
     self._url = url
@@ -66,36 +52,21 @@ class TicTacToeServer:
     self.close()
 
   def play_one_game(self, local_player, exit=True):
-    dbg_print('qwer')
     self._state = self._game.new_initial_state()
 
-    remote_player = self  # this is confusing...
+    remote_player = RemotePlayer(self)
     players = [remote_player, local_player]
-    remote_is_waiting = False
 
     while not self._state.is_terminal():
-      dbg_print('s')
       current_player_idx = self._state.current_player()
       current_player = players[current_player_idx]
-      if current_player is remote_player:
-        dbg_print('remote turn')
-        if remote_is_waiting:
-          dbg_print('send state')
-          self._server.send(self._state_as_dict(self._state))
-          remote_is_waiting = False
-        action = self.serve_until_step_requested(self._state)
-        remote_is_waiting = True
-      else:
-        dbg_print('server turn')
-        action = current_player.step(self._state)
+      action = current_player.step(self._state)
       self._state.apply_action(action)
 
-    if remote_is_waiting:
-      if exit:
-        dbg_print('server send exit')
-        self._server.send({'EXIT': True})
-      else:
-        self._server.send({'GAME_OVER': True})
+    if exit:
+      self._server.send({'EXIT': True})
+    else:
+      self._server.send({'GAME_OVER': True})
 
     return self._state
 
@@ -140,7 +111,7 @@ class TicTacToeServer:
   def _state_as_dict(self, state):
     return {
       # state_str: A string that the server can use to rebuild the state.
-      #            Not used by clients.
+      #            Clients need to store this for searching game graphs.
       'state_str': base64.b64encode(pickle.dumps(state)).decode('UTF-8'),
       'current_player': state.current_player(),
       'legal_actions': state.legal_actions(),
@@ -156,5 +127,15 @@ class TicTacToeServer:
     return {'max_utility': 1, 'min_utility': -1}
 
 
-if __name__ == "__main__":
-  main()
+class RemotePlayer:
+  def __init__(self, server):
+    self._server = server
+    self._is_waiting_for_response = False
+
+  def step(self, state) -> int:
+    if self._is_waiting_for_response:
+      self._server._server.send(self._server._state_as_dict(state))
+      self._is_waiting_for_response = False
+    action = self._server.serve_until_step_requested(state)
+    self._is_waiting_for_response = True
+    return action

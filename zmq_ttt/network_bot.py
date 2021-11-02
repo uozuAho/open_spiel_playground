@@ -1,62 +1,31 @@
-import math
-
-import numpy as np
 import pyspiel
-from open_spiel.python.bots import uniform_random
-from open_spiel.python.algorithms import mcts
 
 from networking import DictClient
 
-DEBUG=False
 
-
-def main():
-  # bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot_builder = lambda game : mcts.MCTSBot(
-      game,
-      uct_c=math.sqrt(2),
-      max_simulations=4,
-      evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = BotClient(bot_builder, "ipc:///tmp/ttt")
-  try:
-    bot.run()
-  finally:
-    bot.disconnect()
-
-
-def dbg_print(message):
-  if DEBUG:
-    print(message)
-
-
-class BotClient:
+class NetworkBot:
   def __init__(self, bot_builder, url):
     self._bot_builder = bot_builder
     self._url = url
 
   def run(self):
     self._client = DictClient(self._url)
-    game = RemoteGame(self._client)
-    state = RemoteState(self._client)
+    game = NetworkGame(self._client)
+    state = NetworkState(self._client)
     self._bot = self._bot_builder(game)
     while True:
-      dbg_print('client a')
       action = self._bot.step(state)
-      dbg_print('client b')
       new_state = state.step(action)
-      dbg_print('client c')
       if 'GAME_OVER' in new_state:
-        dbg_print('client game over')
-        state = RemoteState(self._client)
+        state = NetworkState(self._client)
       if 'EXIT' in new_state:
-        dbg_print('client exit received')
         break
 
   def disconnect(self):
     self._client.close()
 
 
-class RemoteGame:
+class NetworkGame:
   """ Implements an OpenSpiel game, that is usable by existing OpenSpiel bots """
   def __init__(self, client: DictClient):
       self._client = client
@@ -92,14 +61,14 @@ class RemoteGame:
     return info['max_utility']
 
 
-class RemoteState:
+class NetworkState:
   """ Implements an OpenSpiel state, that is usable by existing OpenSpiel bots """
   def __init__(self, client: DictClient, state=None):
       self._client = client
       self._state = state
 
   def clone(self):
-    return RemoteState(self._client, self._state)
+    return NetworkState(self._client, self._state)
 
   def current_player(self):
     return self._get_state()['current_player']
@@ -118,7 +87,6 @@ class RemoteState:
     return self._get_state()['returns']
 
   def step(self, action: int):
-    dbg_print('client step')
     # note: 'step' isn't part of an OpenSpiel state, but we need a way of
     # indicating to the server that this is a 'real' action, not part of a
     # simulation.
@@ -131,7 +99,6 @@ class RemoteState:
 
   def apply_action(self, action: int):
     """ Ask the server to apply the given action to the given state """
-    dbg_print(f'client apply action {action}')
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints.
     self._state = self._client.send({
       'type': 'apply_action',
@@ -142,7 +109,3 @@ class RemoteState:
     if not self._state:
       self._state = self._client.send({'type': 'get_state'})
     return self._state
-
-
-if __name__ == "__main__":
-  main()

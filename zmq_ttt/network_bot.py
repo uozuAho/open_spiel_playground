@@ -21,6 +21,15 @@ class NetworkBot:
       if 'EXIT' in new_state:
         break
 
+  def play_one_game(self):
+    self._client = DictClient(self._url)
+    game = NetworkGame(self._client)
+    state = game.new_initial_state()
+    self._bot = self._bot_builder(game)
+    while not state.is_terminal():
+      action = self._bot.step(state)
+      state.apply_action(action)
+
   def disconnect(self):
     self._client.close()
 
@@ -29,6 +38,13 @@ class NetworkGame:
   """ Implements an OpenSpiel game, that is usable by existing OpenSpiel bots """
   def __init__(self, client: DictClient):
       self._client = client
+
+  def new_initial_state(self):
+    state = self._client.send({'type': 'new_initial_state'})
+    return NetworkState(self._client, state)
+
+  def exit(self):
+    self._client.send({'type': 'EXIT'})
 
   def get_type(self):
     type = self._client.send({'type': 'game_type'})

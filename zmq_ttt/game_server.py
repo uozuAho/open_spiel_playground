@@ -14,6 +14,16 @@ class TicTacToeServer:
   def __init__(self, url):
     self._url = url
 
+  def run(self):
+    self._server = DictServer(self._url)
+    self._game = pyspiel.load_game("tic_tac_toe")
+    local_bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+    remote_player = RemotePlayer(self)
+    players = [remote_player, local_bot]
+    self.serve_until_exit_requested()
+    print('closing server')
+    self.close()
+
   def serve_one_game(self):
     self._server = DictServer(self._url)
     self._game = pyspiel.load_game("tic_tac_toe")
@@ -83,6 +93,16 @@ class TicTacToeServer:
         self._server.send(response)
     return action
 
+  def serve_until_exit_requested(self):
+    done = False
+    while not done:
+      request = self._server.recv()
+      response = self._handle_request({}, request)
+      self._server.send(response)
+      if request['type'] == 'EXIT':
+        print('handled exit')
+        done = True
+
   def _handle_request(self, state, request: Dict):
     if request['type'] == 'apply_action':
       return self._handle_apply_action(request)
@@ -94,6 +114,10 @@ class TicTacToeServer:
       return self._handle_game_type()
     if request['type'] == 'game_info':
       return self._handle_game_info()
+    if request['type'] == 'new_initial_state':
+      return self._handle_new_initial_state()
+    if request['type'] == 'EXIT':
+      return self._handle_exit()
     raise RuntimeError(f'unknown request: {request["type"]}')
 
   def _handle_apply_action(self, request: Dict):
@@ -125,6 +149,13 @@ class TicTacToeServer:
 
   def _handle_game_info(self):
     return {'max_utility': 1, 'min_utility': -1}
+
+  def _handle_new_initial_state(self):
+    state = self._game.new_initial_state()
+    return self._state_as_dict(state)
+
+  def _handle_exit(self):
+    return "bye!"
 
 
 class RemotePlayer:

@@ -1,13 +1,15 @@
 import math
 from multiprocessing import Process
+import time
 import numpy as np
 from absl.testing import absltest
 
 from open_spiel.python.algorithms import mcts
 from open_spiel.python.bots import uniform_random
 
-from network_bot import NetworkBot
+from network_bot import NetworkBot, NetworkGame
 from game_server import TicTacToeServer
+from networking import DictClient
 
 
 class RemoteTicTacToeTests(absltest.TestCase):
@@ -59,6 +61,26 @@ class RemoteTicTacToeTests(absltest.TestCase):
     client_process.join()
     server_process.join()
     # if we get here without hanging, success!
+
+  def test_client_controls_game(self):
+    """ work in progress. rather than game server running games, let the client
+    do it"""
+    server = TicTacToeServer("tcp://*:5555")
+    server_process = Process(target=server.run)
+    server_process.start()
+
+    bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+
+    client = DictClient("tcp://localhost:5555")
+    game = NetworkGame(client)
+    state = game.new_initial_state()
+    while not state.is_terminal():
+      action = bot.step(state)
+      state.apply_action(action)
+
+    game.exit()
+    client.close()
+    server_process.join()
 
 
 if __name__ == "__main__":

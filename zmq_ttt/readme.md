@@ -60,6 +60,7 @@ python bot_client.py
 - network bot change: state = networkGame.newState
   - does networkGame even need a current state?
   - client should measure games/sec
+- fix unclosed zmq context
 - cleanup, tests, 'harden'
   - handle bots in either order?
 - try random & mcts vs pandemic game

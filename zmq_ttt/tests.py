@@ -52,22 +52,6 @@ class RemoteTicTacToeTests(absltest.TestCase):
     game.exit()
     server_process.join()
 
-  # todo: remove this
-  def test_measure_performance(self):
-    server = TicTacToeServer("tcp://*:5555")
-    server_process = Process(target=server.measure_games_per_second, args=(0.5,))
-    server_process.start()
-
-    random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-    bot = NetworkBot(random_bot_builder, "tcp://localhost:5555")
-
-    client_process = Process(target=bot.run)
-    client_process.start()
-
-    client_process.join()
-    server_process.join()
-    # if we get here without hanging, success!
-
   def test_client_controls_game(self):
     server = TicTacToeServer("tcp://*:5555")
     server_process = Process(target=server.run)

@@ -13,7 +13,10 @@ def main():
   server_process = Process(target=server.run)
   server_process.start()
 
-  bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  bot1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
+  bot2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
+
+  players = [bot1, bot2]
 
   client = DictClient("tcp://localhost:5555")
   game = NetworkGame(client)
@@ -22,7 +25,9 @@ def main():
   while not state.is_terminal():
     print('state:')
     print(state)
-    action = bot.step(state)
+    current_player = players[state.current_player()]
+    print('current player', state.current_player())
+    action = current_player.step(state)
     print('bot action:', action)
     state.apply_action(action)
 

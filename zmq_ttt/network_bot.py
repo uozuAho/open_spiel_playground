@@ -116,3 +116,6 @@ class NetworkState:
     if not self._state:
       self._state = self._client.send({'type': 'get_state'})
     return self._state
+
+  def __str__(self):
+    return self._get_state()['pretty_str']

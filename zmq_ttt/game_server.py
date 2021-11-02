@@ -142,7 +142,8 @@ class TicTacToeServer:
       'legal_actions': state.legal_actions(),
       'is_terminal': state.is_terminal(),
       'is_chance_node': state.is_chance_node(),
-      'returns': state.returns()
+      'returns': state.returns(),
+      'pretty_str': str(state)
     }
 
   def _handle_game_type(self):

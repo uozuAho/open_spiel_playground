@@ -69,15 +69,13 @@ class RemoteTicTacToeTests(absltest.TestCase):
 
     bot = uniform_random.UniformRandomBot(1, np.random.RandomState())
 
-    client = DictClient("tcp://localhost:5555")
-    game = NetworkGame(client)
+    game = NetworkGame(None, "tcp://localhost:5555")
     state = game.new_initial_state()
     while not state.is_terminal():
       action = bot.step(state)
       state.apply_action(action)
 
     game.exit()
-    client.close()
     server_process.join()
 
 

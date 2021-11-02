@@ -27,8 +27,10 @@ class NetworkBot:
 
 class NetworkGame:
   """ Implements an OpenSpiel game, that is usable by existing OpenSpiel bots """
-  def __init__(self, client: DictClient):
+  def __init__(self, client, url=None):
       self._client = client
+      if url is not None:
+        self._client = DictClient(url)
 
   def new_initial_state(self):
     state = self._client.send({'type': 'new_initial_state'})
@@ -36,6 +38,7 @@ class NetworkGame:
 
   def exit(self):
     self._client.send({'type': 'EXIT'})
+    self._client.close()
 
   def get_type(self):
     type = self._client.send({'type': 'game_type'})

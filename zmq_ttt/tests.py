@@ -27,9 +27,7 @@ class RemoteTicTacToeTests(absltest.TestCase):
     # if we get here without hanging, success!
 
   def test_mcts_vs_random_game(self):
-    server = TicTacToeServer("tcp://*:5555")
-    server_process = Process(target=server.run)
-    server_process.start()
+    server = self._start_game_server("tcp://*:5555")
 
     game = NetworkGame(None, "tcp://localhost:5555")
 
@@ -50,12 +48,10 @@ class RemoteTicTacToeTests(absltest.TestCase):
       state.apply_action(action)
 
     game.exit()
-    server_process.join()
+    server.join()
 
   def test_client_controls_game(self):
-    server = TicTacToeServer("tcp://*:5555")
-    server_process = Process(target=server.run)
-    server_process.start()
+    server = self._start_game_server("tcp://*:5555")
 
     bot1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
     bot2 = uniform_random.UniformRandomBot(0, np.random.RandomState())
@@ -69,7 +65,13 @@ class RemoteTicTacToeTests(absltest.TestCase):
       state.apply_action(action)
 
     game.exit()
-    server_process.join()
+    server.join()
+
+  def _start_game_server(self, url):
+    server = TicTacToeServer(url)
+    process = Process(target=server.run)
+    process.start()
+    return process
 
 
 if __name__ == "__main__":

@@ -29,7 +29,7 @@ def local_random_vs_random():
 def remote_random_vs_random():
   print("remote_random_vs_random")
   server = TicTacToeServer("tcp://*:5555")
-  server_process = Process(target=server.measure_games_per_second, args=(3,))
+  server_process = Process(target=server.run)
   server_process.start()
   game = NetworkGame(None, "tcp://localhost:5555")
   b1 = uniform_random.UniformRandomBot(0, np.random.RandomState())

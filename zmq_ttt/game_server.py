@@ -22,7 +22,6 @@ class TicTacToeServer:
     # something's wrong here, why aren't players used?
     players = [remote_player, local_bot]
     self.serve_until_exit_requested()
-    print('closing server')
     self.close()
 
   def serve_one_game(self):
@@ -101,7 +100,6 @@ class TicTacToeServer:
       response = self._handle_request({}, request)
       self._server.send(response)
       if request['type'] == 'EXIT':
-        print('handled exit')
         done = True
 
   def _handle_request(self, state, request: Dict):

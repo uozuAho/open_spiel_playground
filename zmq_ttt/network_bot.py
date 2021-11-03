@@ -96,17 +96,6 @@ class NetworkState:
   def returns(self):
     return self._get_state()['returns']
 
-  def step(self, action: int):
-    # note: 'step' isn't part of an OpenSpiel state, but we need a way of
-    # indicating to the server that this is a 'real' action, not part of a
-    # simulation.
-    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints.
-    self._state = self._client.send({
-      'type': 'step',
-      'action': int(action)})
-
-    return self._state
-
   def apply_action(self, action: int):
     """ Ask the server to apply the given action to the given state """
     # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints.

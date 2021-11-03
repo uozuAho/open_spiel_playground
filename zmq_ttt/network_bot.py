@@ -3,28 +3,6 @@ import pyspiel
 from networking import DictClient
 
 
-class NetworkBot:
-  def __init__(self, bot_builder, url):
-    self._bot_builder = bot_builder
-    self._url = url
-
-  def run(self):
-    self._client = DictClient(self._url)
-    game = NetworkGame(self._client)
-    state = NetworkState(self._client)
-    self._bot = self._bot_builder(game)
-    while True:
-      action = self._bot.step(state)
-      new_state = state.step(action)
-      if 'GAME_OVER' in new_state:
-        state = NetworkState(self._client)
-      if 'EXIT' in new_state:
-        break
-
-  def disconnect(self):
-    self._client.close()
-
-
 class NetworkGame:
   """ Implements an OpenSpiel game, that is usable by existing OpenSpiel bots """
   def __init__(self, client, url=None):

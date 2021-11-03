@@ -9,7 +9,7 @@ General idea:
   ┌────────────┐    ┌───────────────────┐ get game info  ┌────────────────────┐
   │            │    │                   ├───────────────▲│                    │
   │ OpenSpiel  │    │ NetworkBot        │▼───────────────┤ Remote Game Server │
-  │            │    │                   │                │                    │
+  │            │    │  no more network bot!  │                │                    │
   │     bot  ──┼────┼───► wrapped bot   │                │                    │
   │            │    │                   │                │                    │
   │            │    │                   │   get state    │                    │

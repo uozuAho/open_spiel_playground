@@ -8,12 +8,12 @@ from open_spiel.python.bots import uniform_random
 from open_spiel.python.algorithms import mcts
 
 from game_server import TicTacToeServer
-from network_bot import NetworkBot
+from network_bot import NetworkBot, NetworkGame
 
 
 def main():
   local_random_vs_random()
-  random_vs_remote_random()
+  remote_random_vs_random()
   local_random_vs_mcts()
   random_vs_remote_mcts()
 
@@ -26,19 +26,18 @@ def local_random_vs_random():
   print_games_per_second(game, b1, b2, time_limit_s=3)
 
 
-def random_vs_remote_random():
-  print("random_vs_remote_random")
+def remote_random_vs_random():
+  print("remote_random_vs_random")
   server = TicTacToeServer("tcp://*:5555")
   server_process = Process(target=server.measure_games_per_second, args=(3,))
   server_process.start()
+  game = NetworkGame(None, "tcp://localhost:5555")
+  b1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
+  b2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
 
-  random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot = NetworkBot(random_bot_builder, "tcp://localhost:5555")
+  print_games_per_second(game, b1, b2, time_limit_s=3)
 
-  client_process = Process(target=bot.run)
-  client_process.start()
-
-  client_process.join()
+  game.exit()
   server_process.join()
 
 

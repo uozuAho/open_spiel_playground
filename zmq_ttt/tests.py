@@ -13,7 +13,7 @@ from game_server import TicTacToeServer
 class RemoteTicTacToeTests(absltest.TestCase):
   def test_mcts_vs_random_game(self):
     server = self._start_game_server("tcp://*:5555")
-    game = NetworkGame(None, "tcp://localhost:5555")
+    game = NetworkGame("tcp://localhost:5555")
     mcts_bot = mcts.MCTSBot(
         game,
         uct_c=math.sqrt(2),
@@ -28,7 +28,7 @@ class RemoteTicTacToeTests(absltest.TestCase):
 
   def test_random_vs_random(self):
     server = self._start_game_server("tcp://*:5555")
-    game = NetworkGame(None, "tcp://localhost:5555")
+    game = NetworkGame("tcp://localhost:5555")
     bot1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
     bot2 = uniform_random.UniformRandomBot(0, np.random.RandomState())
 

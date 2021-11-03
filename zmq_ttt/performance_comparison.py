@@ -29,7 +29,7 @@ def local_random_vs_random():
 def remote_random_vs_random():
   print("remote_random_vs_random")
   server = start_game_server("tcp://*:5555")
-  game = NetworkGame(None, "tcp://localhost:5555")
+  game = NetworkGame("tcp://localhost:5555")
   b1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
   b2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
 
@@ -55,7 +55,7 @@ def local_random_vs_mcts():
 def random_vs_remote_mcts():
   print("random_vs_remote_mcts")
   server = start_game_server("tcp://*:5555")
-  game = NetworkGame(None, "tcp://localhost:5555")
+  game = NetworkGame("tcp://localhost:5555")
   random_bot = uniform_random.UniformRandomBot(0, np.random.RandomState())
   mcts_bot = mcts.MCTSBot(
       game,

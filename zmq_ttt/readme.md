@@ -57,14 +57,7 @@ python bot_client.py
 - using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
-- network bot change: state = networkGame.newState
-  - tests: done
-  - update perf comparsion: done
-  - update verbose playthrough: done
-  - does networkGame even need a current state?
-  - remove other unnecessary code, eg. server: measure games/sec
-    - NetworkGame(None...)
-  - client should measure games/sec
+- network bot change
   - update docs
 - fix unclosed zmq context during tests
 - cleanup, tests, 'harden'

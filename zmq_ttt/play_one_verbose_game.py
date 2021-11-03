@@ -17,7 +17,7 @@ def main():
 
   players = [bot1, bot2]
 
-  game = NetworkGame(None, "tcp://localhost:5555")
+  game = NetworkGame("tcp://localhost:5555")
   state = game.new_initial_state()
 
   while not state.is_terminal():

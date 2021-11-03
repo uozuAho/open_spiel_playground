@@ -5,10 +5,8 @@ from networking import DictClient
 
 class NetworkGame:
   """ Implements an OpenSpiel game, that is usable by existing OpenSpiel bots """
-  def __init__(self, client, url=None):
-      self._client = client
-      if url is not None:
-        self._client = DictClient(url)
+  def __init__(self, url):
+    self._client = DictClient(url)
 
   def new_initial_state(self):
     state = self._client.send({'type': 'new_initial_state'})

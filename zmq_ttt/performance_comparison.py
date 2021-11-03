@@ -8,7 +8,7 @@ from open_spiel.python.bots import uniform_random
 from open_spiel.python.algorithms import mcts
 
 from game_server import TicTacToeServer
-from network_bot import NetworkBot, NetworkGame
+from network_bot import NetworkGame
 
 
 def main():
@@ -28,9 +28,7 @@ def local_random_vs_random():
 
 def remote_random_vs_random():
   print("remote_random_vs_random")
-  server = TicTacToeServer("tcp://*:5555")
-  server_process = Process(target=server.run)
-  server_process.start()
+  server = start_game_server("tcp://*:5555")
   game = NetworkGame(None, "tcp://localhost:5555")
   b1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
   b2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
@@ -38,7 +36,7 @@ def remote_random_vs_random():
   print_games_per_second(game, b1, b2, time_limit_s=3)
 
   game.exit()
-  server_process.join()
+  server.join()
 
 
 def local_random_vs_mcts():
@@ -56,46 +54,27 @@ def local_random_vs_mcts():
 
 def random_vs_remote_mcts():
   print("random_vs_remote_mcts")
-  server = TicTacToeServer("tcp://*:5555")
-  server_process = Process(target=server.measure_games_per_second, args=(3,))
-  server_process.start()
-
-  mcts_bot_builder = lambda game : mcts.MCTSBot(
+  server = start_game_server("tcp://*:5555")
+  game = NetworkGame(None, "tcp://localhost:5555")
+  random_bot = uniform_random.UniformRandomBot(0, np.random.RandomState())
+  mcts_bot = mcts.MCTSBot(
       game,
       uct_c=math.sqrt(2),
       # starts beating random bot at ~ 3 sims, 1 rollout
       max_simulations=3,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = NetworkBot(mcts_bot_builder, "tcp://localhost:5555")
 
-  client_process = Process(target=bot.run)
-  client_process.start()
+  print_games_per_second(game, random_bot, mcts_bot, time_limit_s=3)
 
-  client_process.join()
-  server_process.join()
+  game.exit()
+  server.join()
 
 
-def local_print_games_per_second(builder1, builder2, time_limit_s):
-  game = pyspiel.load_game("tic_tac_toe")
-  bot_1 = builder1(game)
-  bot_2 = builder2(game)
-
-  end = datetime.now() + timedelta(seconds=time_limit_s)
-  last = datetime.now()
-  num_games = 0
-  bot_1_wins = 0
-  bot_2_wins = 0
-  while datetime.now() < end:
-    state = local_play_one_game(game, bot_1, bot_2)
-    if state.returns()[0] > 0:
-      bot_1_wins += 1
-    else:
-      bot_2_wins += 1
-    num_games += 1
-    if (datetime.now() - last).total_seconds() > 1:
-      print(f'{num_games} games/sec. wins: bot 1: {bot_1_wins}, bot 2: {bot_2_wins}')
-      num_games = 0
-      last = datetime.now()
+def start_game_server(url):
+  server = TicTacToeServer(url)
+  process = Process(target=server.run)
+  process.start()
+  return process
 
 
 def print_games_per_second(game, player_1, player_2, time_limit_s):

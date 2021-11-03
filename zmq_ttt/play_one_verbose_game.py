@@ -4,7 +4,6 @@ import numpy as np
 from open_spiel.python.bots import uniform_random
 
 from game_server import TicTacToeServer
-from networking import DictClient
 from network_bot import NetworkGame
 
 
@@ -18,8 +17,7 @@ def main():
 
   players = [bot1, bot2]
 
-  client = DictClient("tcp://localhost:5555")
-  game = NetworkGame(client)
+  game = NetworkGame(None, "tcp://localhost:5555")
   state = game.new_initial_state()
 
   while not state.is_terminal():
@@ -32,7 +30,6 @@ def main():
     state.apply_action(action)
 
   game.exit()
-  client.close()
   server_process.join()
 
 

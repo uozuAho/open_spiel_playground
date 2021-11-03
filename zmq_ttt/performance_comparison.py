@@ -8,7 +8,7 @@ from open_spiel.python.bots import uniform_random
 from open_spiel.python.algorithms import mcts
 
 from game_server import TicTacToeServer
-from network_bot import NetworkGame
+from network_game import NetworkGame
 
 
 def main():

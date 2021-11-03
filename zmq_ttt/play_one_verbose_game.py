@@ -4,7 +4,7 @@ import numpy as np
 from open_spiel.python.bots import uniform_random
 
 from game_server import TicTacToeServer
-from network_bot import NetworkGame
+from network_game import NetworkGame
 
 
 def main():

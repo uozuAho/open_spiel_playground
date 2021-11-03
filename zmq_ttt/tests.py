@@ -6,26 +6,11 @@ from absl.testing import absltest
 from open_spiel.python.algorithms import mcts
 from open_spiel.python.bots import uniform_random
 
-from network_bot import NetworkBot, NetworkGame
+from network_bot import NetworkGame
 from game_server import TicTacToeServer
 
 
 class RemoteTicTacToeTests(absltest.TestCase):
-  def test_random_vs_random_game(self):
-    server = TicTacToeServer("tcp://*:5555")
-    server_process = Process(target=server.serve_one_game)
-    server_process.start()
-
-    random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-    bot = NetworkBot(random_bot_builder, "tcp://localhost:5555")
-
-    client_process = Process(target=bot.run)
-    client_process.start()
-
-    client_process.join()
-    server_process.join()
-    # if we get here without hanging, success!
-
   def test_mcts_vs_random_game(self):
     server = self._start_game_server("tcp://*:5555")
 
@@ -50,7 +35,7 @@ class RemoteTicTacToeTests(absltest.TestCase):
     game.exit()
     server.join()
 
-  def test_client_controls_game(self):
+  def test_random_vs_random(self):
     server = self._start_game_server("tcp://*:5555")
 
     bot1 = uniform_random.UniformRandomBot(0, np.random.RandomState())

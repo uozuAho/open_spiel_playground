@@ -43,14 +43,15 @@ def remote_random_vs_random():
 
 def local_random_vs_mcts():
   print("local_random_vs_mcts")
-  b1 = lambda game : uniform_random.UniformRandomBot(0, np.random.RandomState())
-  b2 = lambda game : mcts.MCTSBot(
+  game = pyspiel.load_game("tic_tac_toe")
+  b1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
+  b2 = mcts.MCTSBot(
       game,
       uct_c=math.sqrt(2),
       # starts beating random bot at ~ 3 sims, 1 rollout
       max_simulations=3,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  local_print_games_per_second(b1, b2, time_limit_s=3)
+  print_games_per_second(game, b1, b2, time_limit_s=3)
 
 
 def random_vs_remote_mcts():

@@ -34,8 +34,6 @@ class TicTacToeServer:
   def _handle_request(self, state, request: Dict):
     if request['type'] == 'apply_action':
       return self._handle_apply_action(request)
-    if request['type'] == 'get_state':
-      return self._handle_get_state(state)
     if request['type'] == 'game_type':
       return self._handle_game_type()
     if request['type'] == 'game_info':
@@ -49,9 +47,6 @@ class TicTacToeServer:
   def _handle_apply_action(self, request: Dict):
     state = pickle.loads(base64.b64decode(request['state_str']))
     state.apply_action(request['action'])
-    return self._state_as_dict(state)
-
-  def _handle_get_state(self, state):
     return self._state_as_dict(state)
 
   def _state_as_dict(self, state):

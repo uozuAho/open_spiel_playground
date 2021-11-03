@@ -73,7 +73,7 @@ class NetworkGame:
 
 class NetworkState:
   """ Implements an OpenSpiel state, that is usable by existing OpenSpiel bots """
-  def __init__(self, client: DictClient, state=None):
+  def __init__(self, client: DictClient, state):
       self._client = client
       self._state = state
 
@@ -81,20 +81,20 @@ class NetworkState:
     return NetworkState(self._client, self._state)
 
   def current_player(self):
-    return self._get_state()['current_player']
+    return self._state['current_player']
 
   def legal_actions(self, player_id: int=0):
     # todo: implement player_id
-    return self._get_state()['legal_actions']
+    return self._state['legal_actions']
 
   def is_terminal(self):
-    return self._get_state()['is_terminal']
+    return self._state['is_terminal']
 
   def is_chance_node(self):
-    return self._get_state()['is_chance_node']
+    return self._state['is_chance_node']
 
   def returns(self):
-    return self._get_state()['returns']
+    return self._state['returns']
 
   def apply_action(self, action: int):
     """ Ask the server to apply the given action to the given state """
@@ -104,10 +104,5 @@ class NetworkState:
       'action': int(action),
       'state_str': self._state['state_str']})
 
-  def _get_state(self):
-    if not self._state:
-      self._state = self._client.send({'type': 'get_state'})
-    return self._state
-
   def __str__(self):
-    return self._get_state()['pretty_str']
+    return self._state['pretty_str']

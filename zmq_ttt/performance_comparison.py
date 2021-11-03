@@ -20,9 +20,10 @@ def main():
 
 def local_random_vs_random():
   print("local_random_vs_random")
-  b1 = lambda game : uniform_random.UniformRandomBot(0, np.random.RandomState())
-  b2 = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-  local_print_games_per_second(b1, b2, time_limit_s=3)
+  game = pyspiel.load_game("tic_tac_toe")
+  b1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
+  b2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  print_games_per_second(game, b1, b2, time_limit_s=3)
 
 
 def random_vs_remote_random():
@@ -86,6 +87,25 @@ def local_print_games_per_second(builder1, builder2, time_limit_s):
   bot_2_wins = 0
   while datetime.now() < end:
     state = local_play_one_game(game, bot_1, bot_2)
+    if state.returns()[0] > 0:
+      bot_1_wins += 1
+    else:
+      bot_2_wins += 1
+    num_games += 1
+    if (datetime.now() - last).total_seconds() > 1:
+      print(f'{num_games} games/sec. wins: bot 1: {bot_1_wins}, bot 2: {bot_2_wins}')
+      num_games = 0
+      last = datetime.now()
+
+
+def print_games_per_second(game, player_1, player_2, time_limit_s):
+  end = datetime.now() + timedelta(seconds=time_limit_s)
+  last = datetime.now()
+  num_games = 0
+  bot_1_wins = 0
+  bot_2_wins = 0
+  while datetime.now() < end:
+    state = local_play_one_game(game, player_1, player_2)
     if state.returns()[0] > 0:
       bot_1_wins += 1
     else:

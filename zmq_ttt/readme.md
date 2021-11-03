@@ -58,8 +58,13 @@ python bot_client.py
 
 # todo
 - network bot change: state = networkGame.newState
+  - tests: done
+  - update perf comparsion
+  - update verbose playthrough
   - does networkGame even need a current state?
+  - remove other unnecessary code, eg. server: measure games/sec
   - client should measure games/sec
+  - update docs
 - fix unclosed zmq context during tests
 - cleanup, tests, 'harden'
   - handle bots in either order?

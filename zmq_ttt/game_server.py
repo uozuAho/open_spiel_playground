@@ -8,12 +8,15 @@ from networking import DictServer
 
 
 class TicTacToeServer:
-  def __init__(self, url):
+  def __init__(self, url, game=None):
     self._url = url
+    if game is not None:
+      self._game = game
+    else:
+      self._game = pyspiel.load_game("tic_tac_toe")
 
   def run(self):
     self._server = DictServer(self._url)
-    self._game = pyspiel.load_game("tic_tac_toe")
     self.serve_until_exit_requested()
     self.close()
 
@@ -31,6 +34,7 @@ class TicTacToeServer:
       if request['type'] == 'EXIT':
         done = True
 
+  # todo: remove state
   def _handle_request(self, state, request: Dict):
     if request['type'] == 'apply_action':
       return self._handle_apply_action(request)
@@ -63,10 +67,17 @@ class TicTacToeServer:
     }
 
   def _handle_game_type(self):
-    return {'reward_model': 'terminal'}
+    # todo: return all info as dictionary
+    game_type = self._game.get_type()
+    return {
+      'reward_model': 'terminal'
+    }
 
   def _handle_game_info(self):
-    return {'max_utility': 1, 'min_utility': -1}
+    return {
+      'max_utility': self._game.max_utility(),
+      'min_utility': self._game.min_utility()
+    }
 
   def _handle_new_initial_state(self):
     state = self._game.new_initial_state()

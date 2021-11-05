@@ -3,17 +3,13 @@ import time
 import pickle
 from typing import Dict
 
-import pyspiel
 from networking import DictServer
 
 
 class TicTacToeServer:
-  def __init__(self, url, game=None):
+  def __init__(self, url, game):
     self._url = url
-    if game is not None:
-      self._game = game
-    else:
-      self._game = pyspiel.load_game("tic_tac_toe")
+    self._game = game
 
   def run(self):
     self._server = DictServer(self._url)

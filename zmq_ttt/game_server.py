@@ -7,6 +7,9 @@ from networking import DictServer
 
 
 class GameServer:
+  """ An example game server. Your game server should handle requests in a
+      similar fashion to _handle_request.
+  """
   def __init__(self, url, game):
     self._url = url
     self._game = game
@@ -31,6 +34,7 @@ class GameServer:
         done = True
 
   def _handle_request(self, request: Dict):
+    """ Handle a request from a game-playing agent """
     if request['type'] == 'apply_action':
       return self._handle_apply_action(request)
     if request['type'] == 'game_type':

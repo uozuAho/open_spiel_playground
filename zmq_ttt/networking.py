@@ -9,8 +9,8 @@ class DictServer:
       encoded as JSON.
   """
   def __init__(self, url):
-    ctx = zmq.Context()
-    self._socket = ctx.socket(zmq.REP)
+    self._ctx = zmq.Context()
+    self._socket = self._ctx.socket(zmq.REP)
     self._socket.bind(url)
 
   def recv(self) -> Dict:
@@ -23,7 +23,8 @@ class DictServer:
     self._socket.send(json_message.encode('UTF-8'))
 
   def close(self):
-    self._socket.close()
+    self._socket.close(linger=0)
+    self._ctx.destroy()
 
 
 class DictClient:
@@ -32,8 +33,8 @@ class DictClient:
       encoded as JSON.
   """
   def __init__(self, url):
-    ctx = zmq.Context()
-    self._socket = ctx.socket(zmq.REQ)
+    self._ctx = zmq.Context()
+    self._socket = self._ctx.socket(zmq.REQ)
     self._socket.connect(url)
 
   def send(self, message: Dict) -> Dict:
@@ -44,4 +45,5 @@ class DictClient:
     return json.loads(raw_message)
 
   def close(self):
-    self._socket.close()
+    self._socket.close(linger=0)
+    self._ctx.destroy()

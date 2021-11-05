@@ -3,32 +3,18 @@ import pyspiel
 from networking import DictClient
 
 
-class NetworkBot:
-  def __init__(self, bot_builder, url):
-    self._bot_builder = bot_builder
-    self._url = url
-
-  def run(self):
-    self._client = DictClient(self._url)
-    game = NetworkGame(self._client)
-    state = NetworkState(self._client)
-    self._bot = self._bot_builder(game)
-    while True:
-      action = self._bot.step(state)
-      new_state = state.step(action)
-      if 'GAME_OVER' in new_state:
-        state = NetworkState(self._client)
-      if 'EXIT' in new_state:
-        break
-
-  def disconnect(self):
-    self._client.close()
-
-
 class NetworkGame:
   """ Implements an OpenSpiel game, that is usable by existing OpenSpiel bots """
-  def __init__(self, client: DictClient):
-      self._client = client
+  def __init__(self, url):
+    self._client = DictClient(url)
+
+  def new_initial_state(self):
+    state = self._client.send({'type': 'new_initial_state'})
+    return NetworkState(self._client, state)
+
+  def exit(self):
+    self._client.send({'type': 'EXIT'})
+    self._client.close()
 
   def get_type(self):
     type = self._client.send({'type': 'game_type'})
@@ -63,7 +49,7 @@ class NetworkGame:
 
 class NetworkState:
   """ Implements an OpenSpiel state, that is usable by existing OpenSpiel bots """
-  def __init__(self, client: DictClient, state=None):
+  def __init__(self, client: DictClient, state):
       self._client = client
       self._state = state
 
@@ -71,31 +57,20 @@ class NetworkState:
     return NetworkState(self._client, self._state)
 
   def current_player(self):
-    return self._get_state()['current_player']
+    return self._state['current_player']
 
   def legal_actions(self, player_id: int=0):
     # todo: implement player_id
-    return self._get_state()['legal_actions']
+    return self._state['legal_actions']
 
   def is_terminal(self):
-    return self._get_state()['is_terminal']
+    return self._state['is_terminal']
 
   def is_chance_node(self):
-    return self._get_state()['is_chance_node']
+    return self._state['is_chance_node']
 
   def returns(self):
-    return self._get_state()['returns']
-
-  def step(self, action: int):
-    # note: 'step' isn't part of an OpenSpiel state, but we need a way of
-    # indicating to the server that this is a 'real' action, not part of a
-    # simulation.
-    # todo: handle 64 bit action integers. JSON doesn't support 64 bit ints.
-    self._state = self._client.send({
-      'type': 'step',
-      'action': int(action)})
-
-    return self._state
+    return self._state['returns']
 
   def apply_action(self, action: int):
     """ Ask the server to apply the given action to the given state """
@@ -105,7 +80,5 @@ class NetworkState:
       'action': int(action),
       'state_str': self._state['state_str']})
 
-  def _get_state(self):
-    if not self._state:
-      self._state = self._client.send({'type': 'get_state'})
-    return self._state
+  def __str__(self):
+    return self._state['pretty_str']

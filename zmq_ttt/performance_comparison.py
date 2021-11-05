@@ -8,84 +8,83 @@ from open_spiel.python.bots import uniform_random
 from open_spiel.python.algorithms import mcts
 
 from game_server import TicTacToeServer
-from network_bot import NetworkBot
+from network_game import NetworkGame
 
 
 def main():
   local_random_vs_random()
-  random_vs_remote_random()
+  remote_random_vs_random()
   local_random_vs_mcts()
   random_vs_remote_mcts()
 
 
 def local_random_vs_random():
   print("local_random_vs_random")
-  b1 = lambda game : uniform_random.UniformRandomBot(0, np.random.RandomState())
-  b2 = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-  local_print_games_per_second(b1, b2, time_limit_s=3)
+  game = pyspiel.load_game("tic_tac_toe")
+  b1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
+  b2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
+  print_games_per_second(game, b1, b2, time_limit_s=3)
 
 
-def random_vs_remote_random():
-  print("random_vs_remote_random")
-  server = TicTacToeServer("tcp://*:5555")
-  server_process = Process(target=server.measure_games_per_second, args=(3,))
-  server_process.start()
+def remote_random_vs_random():
+  print("remote_random_vs_random")
+  server = start_game_server("tcp://*:5555")
+  game = NetworkGame("tcp://localhost:5555")
+  b1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
+  b2 = uniform_random.UniformRandomBot(1, np.random.RandomState())
 
-  random_bot_builder = lambda game : uniform_random.UniformRandomBot(1, np.random.RandomState())
-  bot = NetworkBot(random_bot_builder, "tcp://localhost:5555")
+  print_games_per_second(game, b1, b2, time_limit_s=3)
 
-  client_process = Process(target=bot.run)
-  client_process.start()
-
-  client_process.join()
-  server_process.join()
+  game.exit()
+  server.join()
 
 
 def local_random_vs_mcts():
   print("local_random_vs_mcts")
-  b1 = lambda game : uniform_random.UniformRandomBot(0, np.random.RandomState())
-  b2 = lambda game : mcts.MCTSBot(
+  game = pyspiel.load_game("tic_tac_toe")
+  b1 = uniform_random.UniformRandomBot(0, np.random.RandomState())
+  b2 = mcts.MCTSBot(
       game,
       uct_c=math.sqrt(2),
       # starts beating random bot at ~ 3 sims, 1 rollout
       max_simulations=3,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  local_print_games_per_second(b1, b2, time_limit_s=3)
+  print_games_per_second(game, b1, b2, time_limit_s=3)
 
 
 def random_vs_remote_mcts():
   print("random_vs_remote_mcts")
-  server = TicTacToeServer("tcp://*:5555")
-  server_process = Process(target=server.measure_games_per_second, args=(3,))
-  server_process.start()
-
-  mcts_bot_builder = lambda game : mcts.MCTSBot(
+  server = start_game_server("tcp://*:5555")
+  game = NetworkGame("tcp://localhost:5555")
+  random_bot = uniform_random.UniformRandomBot(0, np.random.RandomState())
+  mcts_bot = mcts.MCTSBot(
       game,
       uct_c=math.sqrt(2),
       # starts beating random bot at ~ 3 sims, 1 rollout
       max_simulations=3,
       evaluator=mcts.RandomRolloutEvaluator(n_rollouts=2))
-  bot = NetworkBot(mcts_bot_builder, "tcp://localhost:5555")
 
-  client_process = Process(target=bot.run)
-  client_process.start()
+  print_games_per_second(game, random_bot, mcts_bot, time_limit_s=3)
 
-  client_process.join()
-  server_process.join()
+  game.exit()
+  server.join()
 
 
-def local_print_games_per_second(builder1, builder2, time_limit_s):
-  game = pyspiel.load_game("tic_tac_toe")
-  bot_1 = builder1(game)
-  bot_2 = builder2(game)
+def start_game_server(url):
+  server = TicTacToeServer(url)
+  process = Process(target=server.run)
+  process.start()
+  return process
 
+
+def print_games_per_second(game, player_1, player_2, time_limit_s):
   end = datetime.now() + timedelta(seconds=time_limit_s)
   last = datetime.now()
   num_games = 0
   bot_1_wins = 0
   bot_2_wins = 0
   while datetime.now() < end:
-    state = local_play_one_game(game, bot_1, bot_2)
+    state = local_play_one_game(game, player_1, player_2)
     if state.returns()[0] > 0:
       bot_1_wins += 1
     else:

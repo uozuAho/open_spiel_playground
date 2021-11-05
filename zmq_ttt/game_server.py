@@ -6,7 +6,7 @@ from typing import Dict
 from networking import DictServer
 
 
-class TicTacToeServer:
+class GameServer:
   def __init__(self, url, game):
     self._url = url
     self._game = game

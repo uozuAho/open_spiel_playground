@@ -8,7 +8,7 @@ from open_spiel.python.algorithms import mcts
 from open_spiel.python.bots import uniform_random
 
 from network_game import NetworkGame
-from game_server import TicTacToeServer
+from game_server import GameServer
 
 
 class RemoteTicTacToeTests(absltest.TestCase):
@@ -39,7 +39,7 @@ class RemoteTicTacToeTests(absltest.TestCase):
     server.join()
 
   def _start_game_server(self, url):
-    server = TicTacToeServer(url, pyspiel.load_game("tic_tac_toe"))
+    server = GameServer(url, pyspiel.load_game("tic_tac_toe"))
     process = Process(target=server.run)
     process.start()
     return process

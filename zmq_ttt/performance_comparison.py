@@ -71,7 +71,7 @@ def random_vs_remote_mcts():
 
 
 def start_game_server(url):
-  server = TicTacToeServer(url)
+  server = TicTacToeServer(url, pyspiel.load_game("tic_tac_toe"))
   process = Process(target=server.run)
   process.start()
   return process

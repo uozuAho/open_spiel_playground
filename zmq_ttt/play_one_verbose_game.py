@@ -1,6 +1,7 @@
 from multiprocessing import Process
 
 import numpy as np
+import pyspiel
 from open_spiel.python.bots import uniform_random
 
 from game_server import TicTacToeServer
@@ -8,7 +9,7 @@ from network_game import NetworkGame
 
 
 def main():
-  server = TicTacToeServer("tcp://*:5555")
+  server = TicTacToeServer("tcp://*:5555", pyspiel.load_game("tic_tac_toe"))
   server_process = Process(target=server.run)
   server_process.start()
 

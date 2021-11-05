@@ -4,7 +4,9 @@ from networking import DictClient
 
 
 class NetworkGame:
-  """ Implements an OpenSpiel game, that is usable by existing OpenSpiel bots """
+  """ Presents an OpenSpiel Game interface, proxying requests to a remote game
+      server.
+  """
   def __init__(self, url):
     self._client = DictClient(url)
 
@@ -48,7 +50,9 @@ class NetworkGame:
 
 
 class NetworkState:
-  """ Implements an OpenSpiel state, that is usable by existing OpenSpiel bots """
+  """ Presents an OpenSpiel State interface, proxying requests to a remote game
+      server.
+  """
   def __init__(self, client: DictClient, state):
       self._client = client
       self._state = state

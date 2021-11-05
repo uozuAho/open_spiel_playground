@@ -3,11 +3,12 @@ from multiprocessing import Process
 import numpy as np
 from absl.testing import absltest
 
+import pyspiel
 from open_spiel.python.algorithms import mcts
 from open_spiel.python.bots import uniform_random
 
 from network_game import NetworkGame
-from game_server import TicTacToeServer
+from game_server import GameServer
 
 
 class RemoteTicTacToeTests(absltest.TestCase):
@@ -38,7 +39,7 @@ class RemoteTicTacToeTests(absltest.TestCase):
     server.join()
 
   def _start_game_server(self, url):
-    server = TicTacToeServer(url)
+    server = GameServer(url, pyspiel.load_game("tic_tac_toe"))
     process = Process(target=server.run)
     process.start()
     return process

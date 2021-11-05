@@ -1,8 +1,11 @@
 # Demo: OpenSpiel agents play remote tic tac toe game, using ZMQ
 
-The remote game server can be implemented in any language, and run locally or
-remotely. Games are played sychronously in a request-response format. The server
-initialises the game and waits for a network bot to start making requests.
+Allows using OpenSpiel algorithms to play games implemented in other languages
+and/or hosted remotely. Uses JSON over [ZeroMQ](https://zeromq.org/) for
+communication between games & agents.
+
+Games are played sychronously in a request-response format. The game server
+should initialise the game and wait for network bot(s) to start making requests.
 
 # quick start
 ```sh
@@ -15,13 +18,10 @@ python play_one_verbose_game.py
 ```
 
 # performance
-- as you'd expect, this is slow. Playing a local agent against a remote
-  agent runs about 50-100 slower than two local agents.
+- as you'd expect, this is slow. Games run 50-100 slower.
 - using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
-- game server: wrap tic tac toe game
-- update docs
 - fix unclosed zmq context during tests
 - try random & mcts vs pandemic game
 - ideas to improve performance

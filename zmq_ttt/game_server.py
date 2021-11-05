@@ -3,17 +3,19 @@ import time
 import pickle
 from typing import Dict
 
-import pyspiel
 from networking import DictServer
 
 
-class TicTacToeServer:
-  def __init__(self, url):
+class GameServer:
+  """ An example game server. Your game server should handle requests in a
+      similar fashion to _handle_request.
+  """
+  def __init__(self, url, game):
     self._url = url
+    self._game = game
 
   def run(self):
     self._server = DictServer(self._url)
-    self._game = pyspiel.load_game("tic_tac_toe")
     self.serve_until_exit_requested()
     self.close()
 
@@ -26,12 +28,13 @@ class TicTacToeServer:
     done = False
     while not done:
       request = self._server.recv()
-      response = self._handle_request({}, request)
+      response = self._handle_request(request)
       self._server.send(response)
       if request['type'] == 'EXIT':
         done = True
 
-  def _handle_request(self, state, request: Dict):
+  def _handle_request(self, request: Dict):
+    """ Handle a request from a game-playing agent """
     if request['type'] == 'apply_action':
       return self._handle_apply_action(request)
     if request['type'] == 'game_type':
@@ -63,10 +66,17 @@ class TicTacToeServer:
     }
 
   def _handle_game_type(self):
-    return {'reward_model': 'terminal'}
+    # todo: return all info as dictionary
+    game_type = self._game.get_type()
+    return {
+      'reward_model': 'terminal'
+    }
 
   def _handle_game_info(self):
-    return {'max_utility': 1, 'min_utility': -1}
+    return {
+      'max_utility': self._game.max_utility(),
+      'min_utility': self._game.min_utility()
+    }
 
   def _handle_new_initial_state(self):
     state = self._game.new_initial_state()

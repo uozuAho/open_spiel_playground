@@ -29,13 +29,12 @@ class TicTacToeServer:
     done = False
     while not done:
       request = self._server.recv()
-      response = self._handle_request({}, request)
+      response = self._handle_request(request)
       self._server.send(response)
       if request['type'] == 'EXIT':
         done = True
 
-  # todo: remove state
-  def _handle_request(self, state, request: Dict):
+  def _handle_request(self, request: Dict):
     if request['type'] == 'apply_action':
       return self._handle_apply_action(request)
     if request['type'] == 'game_type':

@@ -81,13 +81,18 @@ class GameServer:
       "provides_information_state_tensor" : type.provides_information_state_tensor,
       "provides_observation_string" : type.provides_observation_string,
       "provides_observation_tensor" : type.provides_observation_tensor,
+      'parameter_specification' : type.parameter_specification
     }
 
   def _handle_game_info(self):
-    # todo: other values from https://github.com/deepmind/open_spiel/blob/9e91811b4b893f44bb0f380c4d310585f3a290ee/open_spiel/spiel.h#L153
     return {
-      'max_utility': self._game.max_utility(),
-      'min_utility': self._game.min_utility()
+      'num_distinct_actions' : self._game.num_distinct_actions(),
+      'max_chance_outcomes' : self._game.max_chance_outcomes(),
+      'num_players' : self._game.num_players(),
+      'min_utility' : self._game.min_utility(),
+      'max_utility' : self._game.max_utility(),
+      'utility_sum' : self._game.utility_sum(),
+      'max_game_length' : self._game.max_game_length()
     }
 
   def _handle_new_initial_state(self):

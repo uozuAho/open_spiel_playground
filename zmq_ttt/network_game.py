@@ -37,8 +37,7 @@ class NetworkGame:
       provides_information_state_tensor = type['provides_information_state_tensor'],
       provides_observation_string = type['provides_observation_string'],
       provides_observation_tensor = type['provides_observation_tensor'],
-      # todo: handle parameter_specification
-      parameter_specification={})
+      parameter_specification=type['parameter_specification'])
 
   def max_utility(self):
     info = self._client.send({'type': 'game_info'})

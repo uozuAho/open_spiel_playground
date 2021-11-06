@@ -22,7 +22,5 @@ python play_one_verbose_game.py
 - using IPC vs TCP transports in ZMQ makes no difference
 
 # todo
+- fix _handle_game_type / game.get_type
 - try random & mcts vs pandemic game
-- ideas to improve performance
-  - more efficient (de)serialiser?
-- server should have no references to openSpiel

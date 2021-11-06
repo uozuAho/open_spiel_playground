@@ -66,13 +66,25 @@ class GameServer:
     }
 
   def _handle_game_type(self):
-    # todo: return all info as dictionary
-    game_type = self._game.get_type()
+    type = self._game.get_type()
     return {
-      'reward_model': 'terminal'
+      "short_name" : type.short_name,
+      "long_name" : type.long_name,
+      "dynamics" : type.dynamics.value,
+      "chance_mode" : type.chance_mode.value,
+      "information" : type.information.value,
+      "utility" : type.utility.value,
+      "reward_model" : type.reward_model.value,
+      "max_num_players" : type.max_num_players,
+      "min_num_players" : type.min_num_players,
+      "provides_information_state_string" : type.provides_information_state_string,
+      "provides_information_state_tensor" : type.provides_information_state_tensor,
+      "provides_observation_string" : type.provides_observation_string,
+      "provides_observation_tensor" : type.provides_observation_tensor,
     }
 
   def _handle_game_info(self):
+    # todo: other values from https://github.com/deepmind/open_spiel/blob/9e91811b4b893f44bb0f380c4d310585f3a290ee/open_spiel/spiel.h#L153
     return {
       'max_utility': self._game.max_utility(),
       'min_utility': self._game.min_utility()

@@ -67,6 +67,8 @@ class GameServer:
 
   def _handle_game_type(self):
     type = self._game.get_type()
+    # see https://github.com/deepmind/open_spiel/blob/master/open_spiel/spiel.h
+    # GameType for the values of these fields
     return {
       "short_name" : type.short_name,
       "long_name" : type.long_name,

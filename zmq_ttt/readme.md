@@ -7,6 +7,10 @@ communication between games & agents.
 Games are played sychronously in a request-response format. The game server
 should initialise the game and wait for network bot(s) to start making requests.
 
+This example code includes a server hosting a game of tic tac toe, and a few
+tests of random and MCTS bots playing the game.
+
+
 # quick start
 ```sh
 # run tests
@@ -17,9 +21,11 @@ python performance_comparison.py
 python play_one_verbose_game.py
 ```
 
+
 # performance
 - as you'd expect, this is slow. Games run 50-100 slower.
 - using IPC vs TCP transports in ZMQ makes no difference
+
 
 # todo
 - try random & mcts vs pandemic game

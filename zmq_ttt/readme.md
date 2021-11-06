@@ -23,6 +23,3 @@ python play_one_verbose_game.py
 
 # todo
 - try random & mcts vs pandemic game
-- ideas to improve performance
-  - more efficient (de)serialiser?
-- server should have no references to openSpiel

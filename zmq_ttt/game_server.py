@@ -66,16 +66,33 @@ class GameServer:
     }
 
   def _handle_game_type(self):
-    # todo: return all info as dictionary
-    game_type = self._game.get_type()
+    type = self._game.get_type()
     return {
-      'reward_model': 'terminal'
+      "short_name" : type.short_name,
+      "long_name" : type.long_name,
+      "dynamics" : type.dynamics.value,
+      "chance_mode" : type.chance_mode.value,
+      "information" : type.information.value,
+      "utility" : type.utility.value,
+      "reward_model" : type.reward_model.value,
+      "max_num_players" : type.max_num_players,
+      "min_num_players" : type.min_num_players,
+      "provides_information_state_string" : type.provides_information_state_string,
+      "provides_information_state_tensor" : type.provides_information_state_tensor,
+      "provides_observation_string" : type.provides_observation_string,
+      "provides_observation_tensor" : type.provides_observation_tensor,
+      'parameter_specification' : type.parameter_specification
     }
 
   def _handle_game_info(self):
     return {
-      'max_utility': self._game.max_utility(),
-      'min_utility': self._game.min_utility()
+      'num_distinct_actions' : self._game.num_distinct_actions(),
+      'max_chance_outcomes' : self._game.max_chance_outcomes(),
+      'num_players' : self._game.num_players(),
+      'min_utility' : self._game.min_utility(),
+      'max_utility' : self._game.max_utility(),
+      'utility_sum' : self._game.utility_sum(),
+      'max_game_length' : self._game.max_game_length()
     }
 
   def _handle_new_initial_state(self):

@@ -30,7 +30,7 @@ class GameServer:
       request = self._server.recv()
       response = self._handle_request(request)
       self._server.send(response)
-      if request['type'] == 'EXIT':
+      if request['type'] == 'exit':
         done = True
 
   def _handle_request(self, request: Dict):
@@ -43,7 +43,7 @@ class GameServer:
       return self._handle_game_info()
     if request['type'] == 'new_initial_state':
       return self._handle_new_initial_state()
-    if request['type'] == 'EXIT':
+    if request['type'] == 'exit':
       return self._handle_exit()
     raise RuntimeError(f'unknown request: {request["type"]}')
 

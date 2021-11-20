@@ -15,7 +15,7 @@ class NetworkGame:
     return NetworkState(self._client, state)
 
   def exit(self):
-    self._client.send({'type': 'EXIT'})
+    self._client.send({'type': 'exit'})
     self._client.close()
 
   def get_type(self):

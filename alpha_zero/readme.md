@@ -2,6 +2,9 @@
 
 Playing around with ... AlphaZero
 
+DOESN'T WORK. I think I've got the tensorflow deps wrong, meh. Run it and see
+the errors.
+
 OpenSpiel docs here: https://github.com/deepmind/open_spiel/blob/5eaf401f7d08d68285fe214ab5cf5a741807ea6e/docs/alpha_zero.md
 
 Note: openspield depends on certain versions of tensorflow. Search their repo
@@ -9,9 +12,6 @@ for mentions of tensorflow, eg https://github.com/google-deepmind/open_spiel/blo
 
 ```sh
 uv sync
-# todo: figure out what versions of these work:
-uv add tensorflow matplotlib pandas pyqt5
-
 # simplest example: train an agent to play tic tac toe
 uv run .venv/lib/python3.12/site-packages/open_spiel/python/examples/tic_tac_toe_alpha_zero.py --path ttt_model
 # print some pretty charts of how training went

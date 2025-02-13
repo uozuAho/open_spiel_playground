@@ -1,0 +1,10 @@
+[project]
+name = "zmq-ttt"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "open-spiel>=1.5",
+    "zmq>=0.0.0",
+]

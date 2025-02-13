@@ -13,15 +13,12 @@ tests of random and MCTS bots playing the game.
 
 # quick start
 ```sh
-# run tests
-python tests.py
-# run performance comparison of local/remote games
-python performance_comparison.py
-# run verbose playthrough
-python play_one_verbose_game.py
+uv sync
+uv run tests.py
+uv run performance_comparison.py
+uv run play_one_verbose_game.py
 
-# run a game-playing client that connects to a remote game server
-python client.py
+uv run client.py  # connect to remote game server
 ```
 
 

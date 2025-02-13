@@ -1,0 +1,13 @@
+[project]
+name = "ttt"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "keras==3.1.1",
+    "numpy==1.26.4",
+    "open-spiel>=1.5",
+    "tensorflow-datasets==4.9.4",
+    "tensorflow==2.16.1",
+]

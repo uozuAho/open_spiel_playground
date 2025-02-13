@@ -12,6 +12,7 @@ how to get it installed and run some examples.
     - WSL: hard to get GUI working
 
 ```sh
+cd getting_started
 uv sync
 
 # test it worked:

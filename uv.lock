@@ -3,6 +3,7 @@ requires-python = ">=3.12"
 
 [manifest]
 members = [
+    "mychess",
     "open-spiel-playground",
     "zmq-ttt",
 ]
@@ -59,6 +60,12 @@ wheels = [
 ]
 
 [[package]]
+name = "chess"
+version = "1.11.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/74/16/53b895bb4fccede8e506de820fa94db03a2dc8bd2ca4bec0aac4a112fb65/chess-1.11.1.tar.gz", hash = "sha256:b7f66a32dc599ab260e2b688e6ac4e868dad840377a54b61357e2dec2a5fed00", size = 156529 }
+
+[[package]]
 name = "ml-collections"
 version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -70,6 +77,23 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/31/f9/74689ff3e3ff6e4ec8616887cb00c9c66bca7e6243fd328358ea3665d547/ml_collections-1.0.0.tar.gz", hash = "sha256:00b11a1a339dd6c2d9b7f0daab47ab17e10e29ca1b2a656058605e2b7210897f", size = 61151 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5b/3c/2663b8b41a6f7dae1f1058cc75d9b1d09cf58e6482cb562976d4babe483c/ml_collections-1.0.0-py3-none-any.whl", hash = "sha256:17dbca4d83aba64f56b4b96e59637026d99d9e922569118b8a7f2e0ca6d203a6", size = 76451 },
+]
+
+[[package]]
+name = "mychess"
+version = "0.1.0"
+source = { virtual = "mychess" }
+dependencies = [
+    { name = "chess" },
+    { name = "numpy" },
+    { name = "open-spiel" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "chess", specifier = ">=1.11.1" },
+    { name = "numpy", specifier = ">=2.2.2" },
+    { name = "open-spiel", specifier = ">=1.5" },
 ]
 
 [[package]]

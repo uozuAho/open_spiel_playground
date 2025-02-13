@@ -5,23 +5,19 @@ framework that comes with a bunch of games and algorithms. This repo documents
 how to get it installed and run some examples.
 
 # Getting started
+- install [uv](https://docs.astral.sh/uv/)
 - use linux
     - mingw: just a pain, everything breaks
     - docker: didn't work immediately, gave up :)
     - WSL: hard to get GUI working
 
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+uv sync
 
 # test it worked:
-python print_games.py
-python mcts_ttt_annotated.py
-python .venv/lib/python3.8/site-packages/open_spiel/python/examples/example.py --game=tic_tac_toe
-
-# browse open speil stuff
-code ./venv/lib/python3.8/site-packages/open_spiel
+uv run print_games.py
+uv run mcts_ttt_annotated.py
+uv run .venv/lib/python3.12/site-packages/open_spiel/python/examples/example.py --game_string=tic_tac_toe
 ```
 
 # Getting GUI bits to run

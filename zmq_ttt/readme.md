@@ -13,6 +13,7 @@ tests of random and MCTS bots playing the game.
 
 # quick start
 ```sh
+uv sync
 uv run tests.py
 uv run performance_comparison.py
 uv run play_one_verbose_game.py

@@ -1,0 +1,16 @@
+[project]
+name = "az2"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "keras==2.14.0",
+    "matplotlib>=3.10.1",
+    "numpy==1.26.1",
+    "open-spiel>=1.5",
+    "pandas>=2.2.3",
+    "tensorflow-datasets==4.9.7",
+    "tensorflow-probability==0.22.1",
+    "tensorflow==2.14.0",
+]
